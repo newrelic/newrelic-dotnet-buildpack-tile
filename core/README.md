@@ -15,8 +15,8 @@ You can bind to New Relic dotnet core agent in one of the following ways:
 Note: Environment variables **"NEW_RELIC_LICENSE_KEY"** and **"NEW_RELIC_APP_NAME"** overwrite the license key from **newrelic.config**
 
 To use New Relic dotnet core buildpack in **disconnected** (isolated) environments you can do the following:
-* download the zip file version of the latest New Relic dotnet core agent from [New Relic Download Site][a]
-* upload the agent zip file to your internal repository and make note of the url to it
+* download the **".tgz"** file version of the latest New Relic dotnet core agent from [New Relic Download Site][a]
+* upload the agent **".tgz"** file to your internal repository and make note of the url to it
 * use **"NEW_RELIC_DOWNLOAD_URL"** environment variable and set its value to url from previous step in your internal repository.
 * restage your application
 
