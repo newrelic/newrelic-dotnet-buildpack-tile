@@ -1,19 +1,19 @@
 # New Relic .Net Core Agent Buildpack for PCF
-The New Relic .Net Core Agent build pack is built as a multi-buildpack packaged as a zip file
-(nr_netcore_buildpack-v*.*.*.zip). Use this buildpack along with the dotnet-core-buildpack to
-automatically install the New Relic .Net Core during application deployment.
-Create the build pack
-cf create-buildpack **NEWRELIC_BUILDPACK_NAME** **BUILDPACK_ZIP_FILE_PATH** 1
+The New Relic .Net Core Agent buildpack is built as an extension buildpack for standard dotnet core buildpack.
 
-Ensure the newrelic.config file is updated with the NEWRELIC_LICENSE_KEY and APPLICA-
-TION_NAME and placed in the application folder.
+Use this buildpack along with the dotnet core buildpack to automatically install the New Relic .Net Core agent during application deployment.
 
-If [NEW_RELIC_LICENSE_KEY] is found in the environment, it would overwrite other forms of license keys that have been provided (i.e. license key from newrelic.config).
+The buildpack is create during the tile installation, so there is no need to separately install it using 'cf create-buildpack'.
 
-Push the application using v3 version of cloud foundry push (**"cf v3-push"**). The v3 version is needed for pushing extension buildpacks with Dotnet Core buildpack.
+You can bind to New Relic dotnet core agent in one of the following ways:
+* use newrelic.config file with application name and your account's license key specified
 
-cf v3-push my_app [-b NEWRELIC_BUILDPACK_NAME] [-b DOTNET_CORE_2.0_BUILDPACK_NAME]
+* set environment variables **"NEW_RELIC_LICENSE_KEY"** and **"NEW_RELIC_APP_NAME"** in the application environment
 
-This command will first run the New Relic .Net Core build pack to install the .Net Core Agent
-and then runs the main .Net Core 2.0 build pack to install the .Net Core SDK and deploy the
-application.
+Note: Environment variables **"NEW_RELIC_LICENSE_KEY"** and **"NEW_RELIC_APP_NAME"** overwrite the license key from **newrelic.config**
+
+Push the application using v3 version of CF CLI push (**"cf v3-push"**). The v3 version is needed for pushing extension buildpacks with Dotnet Core buildpack.
+
+* **cf v3-push my_app -b NEWRELIC_BUILDPACK_NAME  -b DOTNET_CORE_2.0_BUILDPACK_NAME**
+
+Make sure New Relic extension buildpack is specified first. This command will first run the New Relic .Net Core build pack to install the .Net Core Agent and then runs the main .Net Core 2.0 build pack to install the .Net Core SDK and deploy the application.
