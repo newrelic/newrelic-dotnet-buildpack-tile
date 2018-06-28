@@ -12,8 +12,9 @@ The 2 HWC buildpacks are similar, except the cached version is built with depend
 The 3rd buildpack is and extension buildpack for Dotnet Core applications, and works in conjunction with Cloud Foundry's standard Dotnet Core buildpack.
 
 ## How to Install the Buildpack
-Download the latest version of the tile (currently v0.2.12) from this github repo under releases, upload to the OpsMgr, and install it. Then **Apply changes**.
+Download the latest version of the tile (currently **"newrelic-dotnet-buildpack-tile-0.2.14.pivotal"**) from this github repo under releases, upload to the OpsMgr, and install it. Then **Apply changes**.
 
+If you do not wish to install all 3 buildpacks by installing the tile, unzip the downloaded **.pivotal** file, and install only the buildpack(s) that you need using CF command **"cf create-buildpack ..."**.
 
 
 
