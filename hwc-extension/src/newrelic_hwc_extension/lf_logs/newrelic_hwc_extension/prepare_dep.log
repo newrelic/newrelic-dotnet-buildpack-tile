@@ -1,0 +1,5 @@
+Prepare command "dep ensure -vendor-only" failed with:
+/scan/.bin/dep: 1: /scan/.bin/dep: ΟϊνώH: not found
+/scan/.bin/dep: 1: /scan/.bin/dep: Syntax error: Unterminated quoted string
+
+

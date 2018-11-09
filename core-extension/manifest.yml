@@ -1,0 +1,32 @@
+---
+language: newrelic_dotnetcore_extension
+default_versions:
+dependency_deprecation_dates:
+dependencies:
+- name: newrelic
+  version: latest
+  # version: 8.8.83.0
+  uri: http://download.newrelic.com/dot_net_agent/previous_releases/8.8.83.0/newrelic-netcore20-agent_8.8.83.0_amd64.tar.gz
+  sha256: 9253f19ef6a394ccfc124620f42f6948ad336a03b94dde7196675f87fcea04b4
+  cf_stacks:
+  - cflinuxfs2
+  - cflinuxfs3
+
+include_files:
+  - README.md
+  - VERSION
+  - bin/detect
+  - bin/compile
+  - bin/supply
+  - bin/finalize
+  - bin/release
+  - manifest.yml
+  - newrelic.config
+  # - CHANGELOG
+  # - CONTRIBUTING.md
+  # - ISSUE_TEMPLATE
+  # - LICENSE
+  # - NOTICE
+  # - PULL_REQUEST_TEMPLATE
+pre_package: scripts/build.sh
+# ========================================
