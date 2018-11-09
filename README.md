@@ -24,7 +24,7 @@ This document describes [New Relic Dotnet Extension Buildpack Tile for Pivotal C
 
 New Relic Dotnet Extension Buildpack for PCF enables you to bind your Dotnet (Core and Framework) applications to New Relic Dotnet agents, and monitor the health and performance of these applications, analyze the data captured by agents, and aditionally correlate the captured agent data with PCF infrastructure which is collected by [New Relic Firehose Nozzle](https://network.pivotal.io/products/nr-firehose-nozzle/).
 
-The extension buildpacks could be installed using the tile in OpsMgr, or alternatively you could extract the **".pivotal"** file, and install individual extension buildpack(s) using CF CLI command **"cf create-buildpack"** as you wish. 
+The extension buildpacks could be installed using the tile in OpsMgr, or alternatively you could extract the <strong>".pivotal"</strong> file, and install individual extension buildpack(s) using CF CLI command <strong>"cf create-buildpack"</strong> as you wish. 
 
 Once you start monitoring your applications, you would also have the ability to set alerts based on any metrics that are collected by Dotnet agents using New Relic's alerting subsystem.
 
@@ -90,7 +90,7 @@ This product has been tested and is compatible with PCF versions v2.1.x and abov
 
 As prerequisite you need to have the following
 * An active New Relic account with a license key which is used to bind Dotnet applications to New Relic Dotnet agents.
-* In order to use [multi-buildpacks in the application's manifest file](https://docs.cloudfoundry.org/devguide/deploy-apps/manifest.html#buildpack), at a minimum you need to upgrade CF CLI to **version 6.38**.
+* In order to use [multi-buildpacks in the application's manifest file](https://docs.cloudfoundry.org/devguide/deploy-apps/manifest.html#buildpack), at a minimum you need to upgrade CF CLI to <strong>version 6.38</strong>.
 * Dotnet HWC extension requires a minimum version of hwc buildpack 3.0.3.
 * Dotnet Core extension requires a minimum version of dotnet core buildpack 2.1.5.
 
@@ -121,22 +121,22 @@ You can either install the buildpacks as a tile in Ops Manager, or push them ind
 
 ## <a id='install-opsmgr'></a> Install and Configure Dotnet Extension as a Tile in Ops Manager
 
-1. Download the latest version of the tile (currently **"newrelic-dotnet-buildpack-1.0.1.pivotal"**) from [PivNet](https://network.pivotal.io/products/newrelic-dotnet-buildpack), or from New Relic's github repo under [releases](https://github.com/newrelic/newrelic-dotnet-buildpack-tile/releases).
-1. Navigate to Ops Manager Installation Dashboard and click **Import a Product** to upload the product file.
-1. Under the **Import a Product** button, click the **"+"** sign next to the version number of **New Relic Dotnet Buildpack for PCF**. This adds the tile to your staging area.
-1. Click the newly added **New Relic Dotnet Buildpack for PCF** tile.
-1. Install and configure the tile in OpsMgr. you can accept the default values and install all 4 buildpacks in your PCF foundation, or in **Tile Configuration->New Relic Buildpack Selection** you could select the checkbox for any of the buildpacks that you wish to install.
-1. If you make any configuration changes, click the **"Save"** button on each tab at the bottom of the page.
-1. Go to **Installation UI** of OpsMgr.
-1. Click on the blue button on top right of the installation UI to **Apply changes**.
+1. Download the latest version of the tile (currently <strong>"newrelic-dotnet-buildpack-1.0.1.pivotal"</strong>) from [PivNet](https://network.pivotal.io/products/newrelic-dotnet-buildpack), or from New Relic's github repo under [releases](https://github.com/newrelic/newrelic-dotnet-buildpack-tile/releases).
+1. Navigate to Ops Manager Installation Dashboard and click <strong>Import a Product</strong> to upload the product file.
+1. Under the <strong>Import a Product</strong> button, click the <strong>"+"</strong> sign next to the version number of <strong>New Relic Dotnet Buildpack for PCF</strong>. This adds the tile to your staging area.
+1. Click the newly added <strong>New Relic Dotnet Buildpack for PCF</strong> tile.
+1. Install and configure the tile in OpsMgr. you can accept the default values and install all 4 buildpacks in your PCF foundation, or in <strong>Tile Configuration->New Relic Buildpack Selection</strong> you could select the checkbox for any of the buildpacks that you wish to install.
+1. If you make any configuration changes, click the <strong>"Save"</strong> button on each tab at the bottom of the page.
+1. Go to <strong>Installation UI</strong> of OpsMgr.
+1. Click on the blue button on top right of the installation UI to <strong>Apply changes</strong>.
 
 <br/>
 
 ## <a id='install-buildpack'></a> Install and Configure Dotnet Extension with CF CLI
 
-If you do not wish to install the tile, you could alternatively unzip the downloaded **.pivotal** file, and install the buildpack(s) which you need using CF CLI command **"cf create-buildpack ..."**.
+If you do not wish to install the tile, you could alternatively unzip the downloaded <strong>.pivotal</strong> file, and install the buildpack(s) which you need using CF CLI command <strong>"cf create-buildpack ..."</strong>.
 
-1. Unzip **"newrelic-dotnet-buildpack-tile-*.pivotal"** into a separate subdirectory<br/>
+1. Unzip <strong>"newrelic-dotnet-buildpack-tile-*.pivotal"</strong> into a separate subdirectory<br/>
 ```
 unzip newrelic-dotnet-buildpack-tile-*.pivotal -d buildpack_tile
 ```
@@ -151,24 +151,24 @@ cd buildpack_tile/releases
 mkdir tmp
 ```
 
-1. Extract the **.tgz** file in releases folder into the **tmp** directory<br/>
+1. Extract the <strong>.tgz</strong> file in releases folder into the <strong>tmp</strong> directory<br/>
 ```
 tar xvf newrelic-dotnet-buildpack-tile-*.tgz -C tmp
 ```
 
-1. Change directory to **tmp/packages**<br/>
+1. Change directory to <strong>tmp/packages</strong><br/>
 ```
 cd tmp/packages
 ```
 
-1. Extract any of the individual buildpack **.tgz** files using the following command<br/>
+1. Extract any of the individual buildpack <strong>.tgz</strong> files using the following command<br/>
 ```
 tar xvf <BUILDPACK_NAME>.tgz
 ```
 <br/>
 this will create a folder by the name of the buildpack, and the newly created folder contains the zipped version of the buildpack. 
 
-1. Upload the zipped buildpack file using CF CLI's **"cf create-buildpack"** command
+1. Upload the zipped buildpack file using CF CLI's <strong>"cf create-buildpack"</strong> command
 ```
 cf create-buildpack <BUILDPACK_NAME> <ZIPPED_BUILDPACK_NAME.zip> 99
 ```
@@ -192,12 +192,12 @@ or https://github.com/newrelic/newrelic-hwc-extension-buildpack
 
 1. Change directory to the cloned buildpack
 
-1. Source the **.envrc** file in the buildpack directory.
+1. Source the <strong>.envrc</strong> file in the buildpack directory.
 ```
 source .envrc
 ```
 
-1. Install **buildpack-packager**
+1. Install <strong>buildpack-packager</strong>
 ```
 ./scripts/install_tools.sh
 ```
@@ -218,7 +218,7 @@ Upload the buildpack to your Cloud Foundry and optionally specify it by name usi
 cf create-buildpack [NEWRELIC_DOTNET_CORE_EXTENSION_BUILDPACK] [BUILDPACK_ZIP_FILE_PATH] 99
 cf push my_app -b NEWRELIC_DOTNET_CORE_EXTENSION_BUILDPACK   -b DOTNET_CORE_BUILDPACK
 ```
-**Note:** to create the HWC extension change the names from **CORE** to **HWC**.
+<strong>Note:</strong> to create the HWC extension change the names from <strong>CORE</strong> to <strong>HWC</strong>.
 
 
 
@@ -246,13 +246,13 @@ New Relic extension buildpacks allow you to use Dotnet agents in various ways to
 
 The buildpack extensions bind to New Relic Dotnet agent using one of the following ways as fits in your environment:
 
-1. If an environment variable named **"NEW_RELIC_DOWNLOAD_URL"** is defined in the application's environment (manifest file, cf set-env, or set in AppsMgr), its value is used as the location to download the agent. This is used for environments where you have your own repository for downloading dependencies (i.e. Artifactory). If a second environment variable called **"NEW_RELIC_DOWNLOAD_SHA256"** is set in the application environment, it is expected to hold the downloaded agent's binary file SHA256 checksum. In this case the SHA256 checksum of the downloaded agent binary file is compared with this value, and in case of mismatch, the buildpack reports an error.
+1. If an environment variable named <strong>"NEW_RELIC_DOWNLOAD_URL"</strong> is defined in the application's environment (manifest file, cf set-env, or set in AppsMgr), its value is used as the location to download the agent. This is used for environments where you have your own repository for downloading dependencies (i.e. Artifactory). If a second environment variable called <strong>"NEW_RELIC_DOWNLOAD_SHA256"</strong> is set in the application environment, it is expected to hold the downloaded agent's binary file SHA256 checksum. In this case the SHA256 checksum of the downloaded agent binary file is compared with this value, and in case of mismatch, the buildpack reports an error.
 
-1. You could create a cached version of the buildpack using the **"--cached"** switch with New Relic agent embedded in the buildpack. This is mainly used in disconnected (isolated) environments where PCF does not have access to the outside world, and the buildpack cannot download the agent from New Relic's download site.
+1. You could create a cached version of the buildpack using the <strong>"--cached"</strong> switch with New Relic agent embedded in the buildpack. This is mainly used in disconnected (isolated) environments where PCF does not have access to the outside world, and the buildpack cannot download the agent from New Relic's download site.
 
 1. Use a specific version of New Relic agent by specifying the version in the buildack's manifest file at the time of packaging.
 
-1. Set the version of the agent to **"0.0.0.0"**, **"latest"**, or **"current"** in buildpack's manifest file to download the latest version of the agent.
+1. Set the version of the agent to <strong>"0.0.0.0"</strong>, <strong>"latest"</strong>, or <strong>"current"</strong> in buildpack's manifest file to download the latest version of the agent.
 
 Except in the first case when the download url is specified, but sha-256 code is not available, in all other cases the buildpack checks the SHA256 checksum of the downloaded (or copied) agent to validate the download.
 
@@ -264,7 +264,7 @@ We always encourage you to use the latest version of New Relic agents unless the
 
 ### <a id='precedence'></a> Order of Precedence
 
-The order of precedence for which method to use to obtain New Relic agent is from the top to bottom. If **"NEW_RELIC_DOWNLOAD_URL"** is specified, it precedes the other options. If this environment variable is not specified, the cached buildpack takes precedence. Otherwise, the **"version"** property of the agent in the buildpack's manifest is used, and one of the other two options is used to download the agent, depending on the value of **"version"** property of the agent dependency (explicit version or "latest").
+The order of precedence for which method to use to obtain New Relic agent is from the top to bottom. If <strong>"NEW_RELIC_DOWNLOAD_URL"</strong> is specified, it precedes the other options. If this environment variable is not specified, the cached buildpack takes precedence. Otherwise, the <strong>"version"</strong> property of the agent in the buildpack's manifest is used, and one of the other two options is used to download the agent, depending on the value of <strong>"version"</strong> property of the agent dependency (explicit version or "latest").
 
 
 
@@ -279,7 +279,7 @@ The license key for New Relic account must be specified in one of the following 
 * License key from Service Broker Tile in Marketplace<br/>
 * License key from newrelic.config<br/>
 
-**Note:** environment variables override all other options.
+<strong>Note:</strong> environment variables override all other options.
 
 
 ### <a id='app-name'></a> Application Name in New Relic UI
@@ -287,26 +287,26 @@ The application name for New Relic is determined in the following order:<br/><br
 * NEW_RELIC_APP_NAME env var<br/>
 * App name from User-Provided-Service<br/>
 * App name from PCF<br/>
-* **Note** that currently App name in newrelic.config file is not used<br/>
+* <strong>Note</strong> that currently App name in newrelic.config file is not used<br/>
 
 
 ### <a id='agent-config'></a> New Relic Agent Configuration File
-New Relic configuration file (**"newrelic.config"**) would allow you to set a number of agent properties, and change the behavior of the agent as you wish. Refer to [.NET agent configuration](https://docs.newrelic.com/docs/agents/net-agent/configuration/net-agent-configuration) for more information on configuring the agent. You could make a copy of this file into the application's root directory, and change any of agent's settings. The buildpack looks for the agent's config file in the following order:<br/><br/>
+New Relic configuration file (<strong>"newrelic.config"</strong>) would allow you to set a number of agent properties, and change the behavior of the agent as you wish. Refer to [.NET agent configuration](https://docs.newrelic.com/docs/agents/net-agent/configuration/net-agent-configuration) for more information on configuring the agent. You could make a copy of this file into the application's root directory, and change any of agent's settings. The buildpack looks for the agent's config file in the following order:<br/><br/>
 * App root folder<br/>
 * Buildpack folder<br/>
 * Agent folder<br/>
 
 
 ### <a id='ups'></a> New Relic User-Provided-Services
-If the application binds to a User-Provided-Service with the word **"newrelic"** as part of its name, the buildpack sets the credentials from this service in the application environment by setting environment variable for known New Relic properties. The known properties currently are:<br/><br/>
+If the application binds to a User-Provided-Service with the word <strong>"newrelic"</strong> as part of its name, the buildpack sets the credentials from this service in the application environment by setting environment variable for known New Relic properties. The known properties currently are:<br/><br/>
 * NEW_RELIC_LICNESE_KEY<br/>
 * NEW_RELIC_APP_NAME<br/>
 * NEW_RELIC_DISTRIBUTED_TRACING_ENABLED<br/>
 
 
 ### <a id='proxy'></a> Use of Proxy
-If you're using a proxy server in your environment, you need to make a copy of **"newrelic.config"** file of the agent in the application directory, and specify the [proxy information](https://docs.newrelic.com/docs/agents/net-agent/configuration/net-agent-configuration#proxy) as a child of the **&lt;service&gt;** element.<br/>
-**Example:**<br/>
+If you're using a proxy server in your environment, you need to make a copy of <strong>"newrelic.config"</strong> file of the agent in the application directory, and specify the [proxy information](https://docs.newrelic.com/docs/agents/net-agent/configuration/net-agent-configuration#proxy) as a child of the <strong>&lt;service&gt;</strong> element.<br/>
+<strong>Example:</strong><br/>
 <pre>
     &lt;service licenseKey="0123456789abcdef0123456789abcdef01234567"&gt;
       &lt;proxy name="my.proxy.address" port="proxy.port" /&gt;
@@ -320,16 +320,16 @@ If you're using a proxy server in your environment, you need to make a copy of *
 
 ### <a id='using-nr-agent'></a>Using New Relic Agent
 
-You need to specify a New Relic account **license key** in one of the following ways in order to bind your application to New Relic service:
+You need to specify a New Relic account <strong>license key</strong> in one of the following ways in order to bind your application to New Relic service:
 
 * Bind your application to New Relic using a License Key
 <br/>
-The quickest and easiest way to bind your app to New Relic Dotnet agent is using the license key environment variable (**"NEW_RELIC_LICNENSE_KEY"**) and set it to your New Relic account's license key.
+The quickest and easiest way to bind your app to New Relic Dotnet agent is using the license key environment variable (<strong>"NEW_RELIC_LICNENSE_KEY"</strong>) and set it to your New Relic account's license key.
 
 <br/>
 * Bind your application to a local copy of New Relic Dotnet Agent
 <br/>
-If you are in a disconnected (isolated) environment, the easiest way is to obtain the latest version of New Relic Dotnet agent(s) from [New Relic download site](http://download.newrelic.com/dot_net_agent/) and upload them to your local repository (i.e. Artifactory). Then in the application's manifest file set **"NEW_RELIC_DOWNLOAD_URL"** environment variable to the  location of the agent download.
+If you are in a disconnected (isolated) environment, the easiest way is to obtain the latest version of New Relic Dotnet agent(s) from [New Relic download site](http://download.newrelic.com/dot_net_agent/) and upload them to your local repository (i.e. Artifactory). Then in the application's manifest file set <strong>"NEW_RELIC_DOWNLOAD_URL"</strong> environment variable to the  location of the agent download.
 
 <br/>
 * Bind your application to New Relic using the Agent Tile in the Marketplace
@@ -338,10 +338,10 @@ If you are in a disconnected (isolated) environment, the easiest way is to obtai
         - select the plan that is associated with your new relic account (check with PCF admin)
         - specify the instance name
         - if you already have the application running on PCF you could specify the app name as well. Otherwise, once you push the app, from the app UI you could directly bind to an existing service instance (or create a new service instance)
-        - click the **CREATE** button to create the service instance
+        - click the <strong>CREATE</strong> button to create the service instance
 
         - once the service instance is created, you could also use the "services" stanza in your app manifest.yml file, and specify the name of the service you just created in the marketplace
-        - restage the application using **"cf restage YOUR_APPNAME"** from the command line
+        - restage the application using "cf restage YOUR_APPNAME" from the command line
 
 
     * From "Services" tab of the application in AppMgr
@@ -359,14 +359,14 @@ If you are in a disconnected (isolated) environment, the easiest way is to obtai
             - click "SELECT PLAN" button
             - specify the instance name
             - click "CREATE"
-        - "restage" the application using **"cf restage YOUR_APPNAME"** from the command line
+        - "restage" the application using "cf restage YOUR_APPNAME" from the command line
 
 <br/>
 * Bind your application to New Relic using User-Provided-Service
     - Create a user-provided-service with the word "newrelic" embedded as part of the service name 
     - add the following credentials to the user-rpovided-service:
-        - "licenseKey" This is New Relic License Key - **REQUIRED**
-        - "appName"    If you want to change the app name in New Relic use this property - **OPTIONAL**
+        - "licenseKey" This is New Relic License Key - <strong>REQUIRED</strong>
+        - "appName"    If you want to change the app name in New Relic use this property - <strong>OPTIONAL</strong>
         - sample CUPS command: ```cf cups my-newrelic-svc -p "licenseKey,appName"```
             - you will be prompted to provide values for licenseKey and appName<br/>
     - push your application in one of the following ways:
@@ -379,7 +379,7 @@ If you are in a disconnected (isolated) environment, the easiest way is to obtai
         <pre>
             cmd: cf create-service newrelic &lt;NEWRELIC_PLAN_NAME&gt; &lt;YOUR_NEWRELIC_SERVICE_INSTANCE_NAME&gt;
         </pre>
-    - specify the newly created service instnace name in the **"services"** section of the application manifest (indented by two spaces):
+    - specify the newly created service instnace name in the <strong>"services"</strong> section of the application manifest (indented by two spaces):
         <pre>
               services:
               - YOUR_NEWRELIC_SERVICE_INSTANCE_NAME
@@ -395,9 +395,9 @@ If you are in a disconnected (isolated) environment, the easiest way is to obtai
 
 * You can use a combination of "newrelic.config" file and/or environment variables to configure New Relic Dotnet agent to report your application's health and performance to the designated New Relic account.
 
-    - A copy of the 'newrelic.config' file is provided with the buildpack. If you need to add any agent features such as proxy settings, or change any other agent settings such as logging behavior, download **newrelic.config** file from New Relic into the application folder, and edit as required. You can refer to [New Relic Configuration documentation](https://docs.newrelic.com/docs/agents/net-agent/configuration/net-agent-configuration) for details on what properties are available. The following are some examples you can use:
+    - A copy of the 'newrelic.config' file is provided with the buildpack. If you need to add any agent features such as proxy settings, or change any other agent settings such as logging behavior, download <strong>newrelic.config</strong> file from New Relic into the application folder, and edit as required. You can refer to [New Relic Configuration documentation](https://docs.newrelic.com/docs/agents/net-agent/configuration/net-agent-configuration) for details on what properties are available. The following are some examples you can use:
 
-        - **new relic license key:** add your New Relic license key:<br/>
+        - <strong>new relic license key:</strong> add your New Relic license key:<br/>
             ```
               <service licenseKey="0123456789abcdef0123456789abcdef01234567">
             ```
@@ -405,7 +405,7 @@ If you are in a disconnected (isolated) environment, the easiest way is to obtai
             alternatively you can add the license key to application's 'manifest.yml' file as an environment variable "NEW_RELIC_LICENSE_KEY" in the "env" section
 
         <br/>
-        - **new relic app name:** If you want the app name in New Relic be different than the app name in PCF, add the New Relic application name as you'd like it to appear in New Relic<br/>
+        - <strong>new relic app name:</strong> If you want the app name in New Relic be different than the app name in PCF, add the New Relic application name as you'd like it to appear in New Relic<br/>
         <pre>
               &lt;application&gt;
                 &lt;name&gt;My Application&lt;/name&gt;
@@ -415,7 +415,7 @@ If you are in a disconnected (isolated) environment, the easiest way is to obtai
             alternatively you can add the New Relic app name to application's 'manifest.yml' file as an environment variable "NEW_RELIC_APP_NAME" in the "env" section
         <br/><br/>
 
-        - **proxy setting:** add proxy settings to the "service" element as a sub-element. example:<br/>
+        - <strong>proxy setting:</strong> add proxy settings to the "service" element as a sub-element. example:<br/>
         <pre>
               &lt;service licenseKey="0123456789abcdef0123456789abcdef01234567"&gt;
                 &lt;proxy host="my_proxy_server.com" port="9090" /&gt;
@@ -424,12 +424,12 @@ If you are in a disconnected (isolated) environment, the easiest way is to obtai
 
         <br/>
 
-        - **logging level:** change agent logging level and destination<br/>
+        - <strong>logging level:</strong> change agent logging level and destination<br/>
         <pre>
               &lt;log level="info" console="true" /&gt;
         </pre>
         <br/>
-        - **non-IIS executable instrumentation:** since for dotnet framework apps 'hwc.exe' is the executable running your application, the copy of **"newrelic.config"** file that comes with the hwc extension contains the proper settings to tell the executable name to the agent. If you provide your own **"newrelic.config"** file, make sure it contains the following tag:
+        - <strong>non-IIS executable instrumentation:</strong> since for dotnet framework apps 'hwc.exe' is the executable running your application, the copy of <strong>"newrelic.config"</strong> file that comes with the hwc extension contains the proper settings to tell the executable name to the agent. If you provide your own <strong>"newrelic.config"</strong> file, make sure it contains the following tag:
         <pre>
               &lt;instrumentation&gt;
                 &lt;applications&gt;
@@ -458,23 +458,23 @@ If you are in a disconnected (isolated) environment, the easiest way is to obtai
 
 ### <a id='envvar-and-nrconfig'></a>Debugging
 <br/>
-* Set **BP_DEBUG** environment variable
-        For troubleshooting purposes, you can set **BP_DEBUG** environment variable in your application environment to get more logging during the application push.
+* Set <strong>BP_DEBUG</strong> environment variable
+        For troubleshooting purposes, you can set <strong>BP_DEBUG</strong> environment variable in your application environment to get more logging during the application push.
 <br/>
 <br/>
 * Check the logs
 <br/>
-    Use **cf logs &lt;APP_NAME&gt;** or **cf logs &lt;APP_NAME&gt; --recent**   to examine the application logs. It should display New Relic agent installation progress.
+    Use <strong>cf logs &lt;APP_NAME&gt;</strong> or <strong>cf logs &lt;APP_NAME&gt; --recent</strong>   to examine the application logs. It should display New Relic agent installation progress.
 
 <br/>
-* User Cloud Foundry's [**CF_TRACE**](https://docs.cloudfoundry.org/devguide/deploy-apps/troubleshoot-app-health.html#trace-cloud-controller-rest-api-calls) to get detailed information about errors and unexpected behavior.
+* User Cloud Foundry's [<strong>CF_TRACE</strong>](https://docs.cloudfoundry.org/devguide/deploy-apps/troubleshoot-app-health.html#trace-cloud-controller-rest-api-calls) to get detailed information about errors and unexpected behavior.
 
 <br/>
 <br/>
 ## <a id='examples'></a>Examples
 
 ### <a id='example-dotnet-core'></a>Push a Sample Dotnet Core Application to PCF
-The following example uses **"dotnet"** CLI to create a sample Dotnet Core application, configures the app manifest to bind the application with New Relic Dotnet Core agent, and pushes the app to PCF. Note that the example uses environment variable to specify the license key for the New Relic account. You could explore this page for alternative ways to bind an application to the agent.
+The following example uses <strong>"dotnet"</strong> CLI to create a sample Dotnet Core application, configures the app manifest to bind the application with New Relic Dotnet Core agent, and pushes the app to PCF. Note that the example uses environment variable to specify the license key for the New Relic account. You could explore this page for alternative ways to bind an application to the agent.
 
 1- Create a sample dotnet MVC application (or use you existing dotnet Core application)<br/>
 ```
@@ -553,14 +553,14 @@ These are release notes for New Relic Dotnet Extension Buildpack for PCF.
 
 ## <a id="ver-1.0.1"></a> v1.0.1
 
-**Public Beta Release Date:** November 8, 2018
+<strong>Public Beta Release Date:</strong> November 8, 2018
 
 Features included in this release:
 
 * hwc extension buildpack for support of multi-buildpack approach
 * added cached version of dotnet core buildpack
-* hwc extension supports **Windows 2012 R2, and 2016**
-* dotnet core extension supports **ubuntu trusty and xenial**
+* hwc extension supports <strong>Windows 2012 R2, and 2016</strong>
+* dotnet core extension supports <strong>ubuntu trusty and xenial</strong>
 * code improvements in hwc and dotnet core extension buildpacks
 * both hwc and dotnet core buildpacks support following ways to bind to new relic agent:
     * New Relic license environment variable
@@ -571,7 +571,7 @@ Features included in this release:
 
 ## <a id="ver-0.2.14"></a> v0.2.14
 
-**Initial Private Beta Release Date:** June 20, 2018
+<strong>Initial Private Beta Release Date:</strong> June 20, 2018
 
 Features included in this release:
 
