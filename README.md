@@ -3,23 +3,24 @@
 
 ---
 
-<br/>
+<br/><br/>
 
 <p class="note warning">
 <strong>WARNING! </strong>
 The first version of New Relic Dotnet Extension Buildpack for PCF was in private beta internally. It was used by New Relic and select number of customers before it was registered on PivNet. The product is currently in public beta and is intended for evaluation and testing purposes until further notice.
 </p>
 
-<br/>
 
 
 This document describes [New Relic Dotnet Extension Buildpack Tile for Pivotal Cloud Foundry (PCF)](https://network.pivotal.io/products/newrelic-dotnet-buildpack/) and instructions on how to install and use New Relic's Dotnet extension tile to bind New Relic agents to Dotnet Core or Dotnet Framework applications to monitor them in [Pivotal Cloud Foundry](https://pivotal.io/platform) (PCF) environment.
 
 <br/>
+
 <center>
     <img src="images/nr-black-256x256.png" alt="New Relic Dotnet Extension Buildpack" height="150" width="150"/>
 </center>
 
+<br/>
 
 ## <a id='overview'></a> Overview
 
