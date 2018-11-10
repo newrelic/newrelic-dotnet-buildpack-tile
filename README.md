@@ -10,8 +10,9 @@
 The first version of New Relic Dotnet Extension Buildpack for PCF was in private beta internally. It was used by New Relic and select number of customers before it was registered on PivNet. The product is currently in public beta and is intended for evaluation and testing purposes until further notice.
 </p>
 
-
 <br/>
+
+
 This document describes [New Relic Dotnet Extension Buildpack Tile for Pivotal Cloud Foundry (PCF)](https://network.pivotal.io/products/newrelic-dotnet-buildpack/) and instructions on how to install and use New Relic's Dotnet extension tile to bind New Relic agents to Dotnet Core or Dotnet Framework applications to monitor them in [Pivotal Cloud Foundry](https://pivotal.io/platform) (PCF) environment.
 
 <br/>
@@ -323,17 +324,18 @@ If you're using a proxy server in your environment, you need to make a copy of <
 You need to specify a New Relic account <strong>license key</strong> in one of the following ways in order to bind your application to New Relic service:
 
 * Bind your application to New Relic using a License Key
-<br/>
-The quickest and easiest way to bind your app to New Relic Dotnet agent is using the license key environment variable (<strong>"NEW_RELIC_LICNENSE_KEY"</strong>) and set it to your New Relic account's license key.
+
+    The quickest and easiest way to bind your app to New Relic Dotnet agent is using the license key environment variable (<strong>"NEW_RELIC_LICNENSE_KEY"</strong>) and set it to your New Relic account's license key.
 
 <br/>
+
 * Bind your application to a local copy of New Relic Dotnet Agent
-<br/>
-If you are in a disconnected (isolated) environment, the easiest way is to obtain the latest version of New Relic Dotnet agent(s) from [New Relic download site](http://download.newrelic.com/dot_net_agent/) and upload them to your local repository (i.e. Artifactory). Then in the application's manifest file set <strong>"NEW_RELIC_DOWNLOAD_URL"</strong> environment variable to the  location of the agent download.
 
-<br/>
-* Bind your application to New Relic using the Agent Tile in the Marketplace
-    * From Marketplace
+    If you are in a disconnected (isolated) environment, the easiest way is to obtain the latest version of New Relic Dotnet agent(s) from [New Relic download site](http://download.newrelic.com/dot_net_agent/) and upload them to your local repository (i.e. Artifactory). Then in the application's manifest file set <strong>"NEW_RELIC_DOWNLOAD_URL"</strong> environment variable to the  location of the agent download.
+
+
+* Bind your application to New Relic using the Agent Tile in the Marketplace<br/>
+    * From Marketplace<br/>
         - click on New Relic tile
         - select the plan that is associated with your new relic account (check with PCF admin)
         - specify the instance name
@@ -361,7 +363,7 @@ If you are in a disconnected (isolated) environment, the easiest way is to obtai
             - click "CREATE"
         - "restage" the application using "cf restage YOUR_APPNAME" from the command line
 
-<br/>
+
 * Bind your application to New Relic using User-Provided-Service
     - Create a user-provided-service with the word "newrelic" embedded as part of the service name 
     - add the following credentials to the user-rpovided-service:
@@ -373,7 +375,7 @@ If you are in a disconnected (isolated) environment, the easiest way is to obtai
         - by adding the user-provided-service to the application manifest.yml before pushing the app
         - by adding the user-provided-service in AppMgr by binding an existing service instance, and restaging it after you bind the service
 
-<br/>
+
 * Bind your application to New Relic using CF CLI
     - create an instance of New Relic service:
         <pre>
@@ -401,19 +403,19 @@ If you are in a disconnected (isolated) environment, the easiest way is to obtai
             ```
               <service licenseKey="0123456789abcdef0123456789abcdef01234567">
             ```
-        <br/>
-            alternatively you can add the license key to application's 'manifest.yml' file as an environment variable "NEW_RELIC_LICENSE_KEY" in the "env" section
 
-        <br/>
+        alternatively you can add the license key to application's 'manifest.yml' file as an environment variable "NEW_RELIC_LICENSE_KEY" in the "env" section
+
+
         - <strong>new relic app name:</strong> If you want the app name in New Relic be different than the app name in PCF, add the New Relic application name as you'd like it to appear in New Relic<br/>
         <pre>
               &lt;application&gt;
                 &lt;name&gt;My Application&lt;/name&gt;
               &lt;/application&gt;
         </pre>
-        <br/>
-            alternatively you can add the New Relic app name to application's 'manifest.yml' file as an environment variable "NEW_RELIC_APP_NAME" in the "env" section
-        <br/><br/>
+
+        alternatively you can add the New Relic app name to application's 'manifest.yml' file as an environment variable "NEW_RELIC_APP_NAME" in the "env" section
+
 
         - <strong>proxy setting:</strong> add proxy settings to the "service" element as a sub-element. example:<br/>
         <pre>
@@ -422,13 +424,12 @@ If you are in a disconnected (isolated) environment, the easiest way is to obtai
               &lt;/service&gt;
         </pre>
 
-        <br/>
 
         - <strong>logging level:</strong> change agent logging level and destination<br/>
         <pre>
               &lt;log level="info" console="true" /&gt;
         </pre>
-        <br/>
+
         - <strong>non-IIS executable instrumentation:</strong> since for dotnet framework apps 'hwc.exe' is the executable running your application, the copy of <strong>"newrelic.config"</strong> file that comes with the hwc extension contains the proper settings to tell the executable name to the agent. If you provide your own <strong>"newrelic.config"</strong> file, make sure it contains the following tag:
         <pre>
               &lt;instrumentation&gt;
@@ -440,7 +441,7 @@ If you are in a disconnected (isolated) environment, the easiest way is to obtai
         
         Note:  Depending on your CI/CD pipeline, the Application directory may be created on-the-fly as part of the pipeline.  If that is the case and you are modifying this file, your pipeline will need to copy over the file to the Application directory before deploying/pushing the app to PCF.
 
-    <br/>
+
     - Push your application to PCF using this buildpack. To do that, edit your manifest.yml and add/update the following entry.
 
         <pre>
@@ -457,20 +458,20 @@ If you are in a disconnected (isolated) environment, the easiest way is to obtai
 <br/>
 
 ### <a id='envvar-and-nrconfig'></a>Debugging
-<br/>
+
 * Set <strong>BP_DEBUG</strong> environment variable
         For troubleshooting purposes, you can set <strong>BP_DEBUG</strong> environment variable in your application environment to get more logging during the application push.
-<br/>
-<br/>
+
+
 * Check the logs
-<br/>
+
     Use <strong>cf logs &lt;APP_NAME&gt;</strong> or <strong>cf logs &lt;APP_NAME&gt; --recent</strong>   to examine the application logs. It should display New Relic agent installation progress.
 
-<br/>
+
 * User Cloud Foundry's [<strong>CF_TRACE</strong>](https://docs.cloudfoundry.org/devguide/deploy-apps/troubleshoot-app-health.html#trace-cloud-controller-rest-api-calls) to get detailed information about errors and unexpected behavior.
 
-<br/>
-<br/>
+
+
 ## <a id='examples'></a>Examples
 
 ### <a id='example-dotnet-core'></a>Push a Sample Dotnet Core Application to PCF
