@@ -22,6 +22,7 @@ This document describes [New Relic Dotnet Extension Buildpack Tile for Pivotal C
 
 <br/>
 
+
 ## <a id='overview'></a> Overview
 
 New Relic Dotnet Extension Buildpack for PCF enables you to bind your Dotnet (Core and Framework) applications to New Relic Dotnet agents, and monitor the health and performance of these applications, analyze the data captured by agents, and aditionally correlate the captured agent data with PCF infrastructure which is collected by [New Relic Firehose Nozzle](https://network.pivotal.io/products/nr-firehose-nozzle/).
@@ -140,39 +141,39 @@ If you do not wish to install the tile, you could alternatively unzip the downlo
 
 1. Unzip <strong>"newrelic-dotnet-buildpack-tile-*.pivotal"</strong> into a separate subdirectory<br/>
 ```
-unzip newrelic-dotnet-buildpack-tile-*.pivotal -d buildpack_tile
+    unzip newrelic-dotnet-buildpack-tile-*.pivotal -d buildpack_tile
 ```
 
-1. Change directory to buildpack_tile/releases<br/>
+2. Change directory to buildpack_tile/releases<br/>
 ```
-cd buildpack_tile/releases
-```
-
-1. Create a subdirectory (i.e. tmp)<br/>
-```
-mkdir tmp
+    cd buildpack_tile/releases
 ```
 
-1. Extract the <strong>.tgz</strong> file in releases folder into the <strong>tmp</strong> directory<br/>
+3. Create a subdirectory (i.e. tmp)<br/>
 ```
-tar xvf newrelic-dotnet-buildpack-tile-*.tgz -C tmp
-```
-
-1. Change directory to <strong>tmp/packages</strong><br/>
-```
-cd tmp/packages
+    mkdir tmp
 ```
 
-1. Extract any of the individual buildpack <strong>.tgz</strong> files using the following command<br/>
+4. Extract the <strong>.tgz</strong> file in releases folder into the <strong>tmp</strong> directory<br/>
 ```
-tar xvf <BUILDPACK_NAME>.tgz
+    tar xvf newrelic-dotnet-buildpack-tile-*.tgz -C tmp
 ```
-<br/>
+
+5. Change directory to <strong>tmp/packages</strong><br/>
+```
+    cd tmp/packages
+```
+
+6. Extract any of the individual buildpack <strong>.tgz</strong> files using the following command<br/>
+```
+    tar xvf <BUILDPACK_NAME>.tgz
+```
+
 this will create a folder by the name of the buildpack, and the newly created folder contains the zipped version of the buildpack. 
 
-1. Upload the zipped buildpack file using CF CLI's <strong>"cf create-buildpack"</strong> command
+7. Upload the zipped buildpack file using CF CLI's <strong>"cf create-buildpack"</strong> command
 ```
-cf create-buildpack <BUILDPACK_NAME> <ZIPPED_BUILDPACK_NAME.zip> 99
+    cf create-buildpack <BUILDPACK_NAME> <ZIPPED_BUILDPACK_NAME.zip> 99
 ```
 
 
@@ -192,25 +193,26 @@ git clone https://github.com/newrelic/newrelic-dotnetcore-extension-buildpack
 or https://github.com/newrelic/newrelic-hwc-extension-buildpack
 ```
 
-1. Change directory to the cloned buildpack
+2. Change directory to the cloned buildpack
 
-1. Source the <strong>.envrc</strong> file in the buildpack directory.
+3. Source the <strong>.envrc</strong> file in the buildpack directory.
 ```
 source .envrc
 ```
 
-1. Install <strong>buildpack-packager</strong>
+4. Install <strong>buildpack-packager</strong>
 ```
 ./scripts/install_tools.sh
 ```
 
-1. Build the buildpack
+5. Build the buildpack
 ```bash
 buildpack-packager build [ --cached ] -any-stack
 ```
 
 
 <br/>
+
 ### <a id='deploy'></a> Deploy
 
 To deploy and use the buildpack in Cloud Foundry
@@ -317,7 +319,7 @@ If you're using a proxy server in your environment, you need to make a copy of <
 
 
 
-<br/>
+
 ## <a id='tips-tricks'></a>Tips & Tricks
 
 ### <a id='using-nr-agent'></a>Using New Relic Agent
