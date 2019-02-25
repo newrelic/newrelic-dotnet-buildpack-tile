@@ -5,12 +5,12 @@ sha:
   VERSION: f0b8c77d978d7b4aebeb1df5a2c0a6aa70393689819dd4060826ab6d36b5ea90
   bin/compile: 654310b5818ccd89c98bf6e6e306cc7e1f06023fdb5bf2c4e98056ad8523805b
   bin/detect: 88e51163e4b0847f1b31405e9ba58ae5d76590141d03c4c3b36e8618dab4e960
-  bin/finalize: 77dc50cde83442b59a8a46fe53b4479dbd379c744265c1356803a6721e349354
+  bin/finalize: e8afb2d4b87b3e010b1a82a5a12da95886a3eadf14f2ea4529726e1f2d52812a
   bin/release: 5bf496d666beb256634a2677fbe707ba322760c7a90f39a7eb684820d6d0f9e5
-  bin/supply: f8845818ca3117b81219cc3bfafea44987c6bd59431c18c3282ba9dcfba2c1c7
+  bin/supply: 7a860e169ebb8d71a84561e5b5a35b56cbb3cd0846483590657802017bf67abc
   fixtures/.gitkeep: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
   fixtures/simple_test/some_file.txt: bf059f3112049d7299f9dc39397fe721c560e790611bfdc163adadbebb4e9ca9
-  manifest.yml: 933ecd6c178fd60774be9e9498d8d9c5a757c9dfe8e72833b423bee34fd5cce1
+  manifest.yml: 90ecddfbb5c953afd8ed01bc7e2e38856f244365b28d80048687ec7a0f1df7c4
   pkg/dep/sources/https---github.com-google-subcommands/.git/HEAD: d4a094f41f0f4a6a5660a5ba9c445a3d404090c924dca5fafe049795c61c819c
   pkg/dep/sources/https---github.com-google-subcommands/.git/config: b9c411e3b51b2f4ed3058f7d0538db3758f6629dbe47b5b6990e91df39af6cf9
   pkg/dep/sources/https---github.com-google-subcommands/.git/index: 9f35fe042b983f76a6007f3f2c86cafc314a9da150ea5435ec1f5cb03ca6ed88
@@ -21,16 +21,15 @@ sha:
   pkg/dep/sources/https---github.com-google-subcommands/.git/objects/02/1c1276285bd2b5d4af7fa9c744291aa8c02eca: a8cc7d4063185ef6027262c5b2c416281f4b7d1444850a8b6fa6a9cc2f9b04d8
   pkg/dep/sources/https---github.com-google-subcommands/.git/objects/0a/b70d23cdf5af36c0cec6bd7b366ac22bbf784a: e1f9b40a75005c75f3d22167473ebc35672e1e5f9251c49cce9191509c54bb4b
   pkg/dep/sources/https---github.com-google-subcommands/.git/objects/0d/5ccd5837e251efa02b2db1908e0ce16d1f63e8: bd53c29d41c2633944e13647c61fa31178f603e0fd67e3111243080b73a7ffdc
-  pkg/dep/sources/https---github.com-google-subcommands/.git/objects/1c/7173745a6001f67d8d96ab4e178284c77f7759: def210efd912d70e669e41afd29177bc49557a8a6de9727a25859cb0e2c2d306
-  pkg/dep/sources/https---github.com-google-subcommands/.git/objects/1d/e6a896e89bfeb6690f9b8d7cda96d602a5c3b4: 11850d1ce8d4fe50e48d1cf96e4f9213086af0ef82503b72759fe78ab6e02acf
   pkg/dep/sources/https---github.com-google-subcommands/.git/objects/2d/43b661fc5f6d3cb7104e5e8d5e604b384888be: c5b1a4d5a6f4ea301e91d58d713f9ae6475d1239aaa3e57442c2b872c917a6a9
   pkg/dep/sources/https---github.com-google-subcommands/.git/objects/5a/1873c2879bffe813b2f1791cd08d73067b9265: 619b7fec5b6e92a894a42829eff0d63cce91322573fd4041a216a0d2dee2a731
   pkg/dep/sources/https---github.com-google-subcommands/.git/objects/5a/882710b82441102926a29cdef13b99566fe6ba: e929f95bb81d7f30ba85291ee1788ebcc3cb056713ad08fb4a5f87e0dd59984b
   pkg/dep/sources/https---github.com-google-subcommands/.git/objects/5b/ae204cdfb2d92dcc333d56014bae6a2f6c58b1: ecdb0520601221e6ea5631843781559372494f6266ad02d953782051ad433be3
   pkg/dep/sources/https---github.com-google-subcommands/.git/objects/5e/f2aa786fcf2fec7eb5f9f9c7ef9cbabc5345cc: 8b503d686013b3982001b5f068d3d4ed9b26ae2d1d6ce575282cbe41374cb50b
   pkg/dep/sources/https---github.com-google-subcommands/.git/objects/6d/320cbca5f5d8baac833a124259fb9fa598f253: ea5da7313d40ecf7efbb0f7cd7c11fc489500e270da5e1b12a3ecaa89c5699fa
-  pkg/dep/sources/https---github.com-google-subcommands/.git/objects/8c/479d7744eb3c43225d2117beb46b453c83e1f3: 1939707078c2834144e80ed36ee1f51df4eed2223f2fff66346e17292fd3ac0e
   pkg/dep/sources/https---github.com-google-subcommands/.git/objects/15/81104527da224a9cf6ac8fb2b748e757ee195e: 11842a963f4777ead7dd21b65f0ceef8c5a3bf5d6b0af3294406328b6f5f36f1
+  pkg/dep/sources/https---github.com-google-subcommands/.git/objects/1c/7173745a6001f67d8d96ab4e178284c77f7759: def210efd912d70e669e41afd29177bc49557a8a6de9727a25859cb0e2c2d306
+  pkg/dep/sources/https---github.com-google-subcommands/.git/objects/1d/e6a896e89bfeb6690f9b8d7cda96d602a5c3b4: 11850d1ce8d4fe50e48d1cf96e4f9213086af0ef82503b72759fe78ab6e02acf
   pkg/dep/sources/https---github.com-google-subcommands/.git/objects/24/b16f685f730742358af168eb4670cecd40bb7d: 6ac9a1834abc0c3a8512461c2b4629922af533e6bd38b34978addcfc42fc70c0
   pkg/dep/sources/https---github.com-google-subcommands/.git/objects/28/27b7d3fa277e2daab95ea3cfaff1c2bfc1389e: a782e4803c38a837f57835d23a95337e87b4abd1f65b9561606bdf38d7bf846b
   pkg/dep/sources/https---github.com-google-subcommands/.git/objects/43/f65adde14103c0e32a37df5a4abfe7b19c7251: dd58c4ffab8b90cd1934818659fa9a28e205307bb5f2d6b08315031e98d4739f
@@ -44,6 +43,7 @@ sha:
   pkg/dep/sources/https---github.com-google-subcommands/.git/objects/79/ca8c76e24ed1ef1272b85d8d00872f547a8d00: ab19153f5f19d0bff4a42215d1330a021193df2311da9e9a6a579a1f213caaac
   pkg/dep/sources/https---github.com-google-subcommands/.git/objects/82/05f5ee7b7b50d3c18ac3630e33d565dea26cf5: 048172e7d775f8e72701e60b9c13cb525f0d69190089f3fcfb867c4e209f8ee5
   pkg/dep/sources/https---github.com-google-subcommands/.git/objects/88/3f315beff856a2ef51fe7cb8c88c28be46aa29: eba91eab0946831be39fa183f051781606aa66e9bd1617727245a82341e8d5ab
+  pkg/dep/sources/https---github.com-google-subcommands/.git/objects/8c/479d7744eb3c43225d2117beb46b453c83e1f3: 1939707078c2834144e80ed36ee1f51df4eed2223f2fff66346e17292fd3ac0e
   pkg/dep/sources/https---github.com-google-subcommands/.git/objects/94/3fac5888b05dbaaece88e36cc3a01ccd03661b: 72327f3fe10e35481e7847952fdc7cc6fc8917044bac5871dac7568a009efef1
   pkg/dep/sources/https---github.com-google-subcommands/.git/objects/98/6f7121ab6521fbab26107b6175c71aefbdfa6b: c8284bfac1b7e5f5bb90355b0a486649e686c8b050ed4029f6b5554cffbfbdf5
   pkg/dep/sources/https---github.com-google-subcommands/.git/objects/a1/395924ba41e18b89f6a7a5b8929af3d491dc8d: 405f29d2b063f24fde2f75788534ab49922b43a2c8619e1386cca3807e718004
@@ -74,29 +74,29 @@ sha:
   pkg/dep/sources/https---github.com-google-subcommands/README.md: 15e3d02a7d6a377493afae4558967cc83ff75341269121a89b494b060ed85519
   pkg/dep/sources/https---github.com-google-subcommands/subcommands.go: 10359df87c857087cddfe7a911d8867660885bbb8e63194d7b51eb1d3f0fe9f4
   scripts/brats.sh: 4cfd6b86f255f3f42601723159bd5beb64667820e402c564d651be06fd7fb226
-  scripts/build.sh: 12cdd5a949e2da5f918c0aa51642bae28e41a7dc456e8639c8ba3ae2f9455100
+  scripts/build.sh: 475381a0222e052094254af6fd8c3df9caca3b3e6a65a7f3b40fa560c3738985
   scripts/install_go.sh: fff04366b8f8d45dff1680b77d88fac1df1c1de5e6d0fd6225b8e9741dd2b697
   scripts/install_tools.sh: d51958dc00a08dcc227f4de41135f9fa3b556c7580ac50dbc376c6e1b9ace8cf
   scripts/integration.sh: 9970361984c5fe56394496c9d836511acd1739b7313ab6d00e11b5154cf0a24b
   scripts/unit.sh: 1ce8656f8bbfcf004c2c1de235560ae1779a9fca71ef3d2bebfd842c50568f3d
-  src/newrelic_dotnetcore_extension/Gopkg.lock: 4921db034b3f19a0c63418f8b17e8aab501724ae2dd751d96e3aee0ec989e2c1
-  src/newrelic_dotnetcore_extension/Gopkg.toml: b2fb8588750ab22b33e0282e541bff1c521e4c2786cdf5b77a9b0c775865662b
-  src/newrelic_dotnetcore_extension/finalize/cli/cli_suite_test.go: 39830eadaa8fcf039fb7848219629cf2426d58855621553c4a586fb7dee938de
-  src/newrelic_dotnetcore_extension/finalize/cli/main.go: 88fd6b3cc359a8ba57b32e2b29aa2c52093adfafdb51db5df12a0d6f02c465e0
-  src/newrelic_dotnetcore_extension/finalize/finalize.go: 06b20762fc2df56488fc258d0977d9e95e5445b1b4178a070d3f60a00b96d037
-  src/newrelic_dotnetcore_extension/finalize/finalize_suite_test.go: d724cf73b21a342fb0788d532e76015c5d449bf48f4f8549e43a2636c546f236
-  src/newrelic_dotnetcore_extension/finalize/finalize_test.go: 212ac92af25b13a8ec306680103f0c383aa2b02e6e16a072c60d9df6598ce2f1
-  src/newrelic_dotnetcore_extension/hooks/hooks_debug.go: 2e5e705c0bfe35d8fc1d8513ccfb207378e30b04e124f222822b0a2632861231
-  src/newrelic_dotnetcore_extension/hooks/hooks_suite_test.go: bf6c55a890b6bd3672a04c97aa0670e19c66e1f0f387954efa4a2f06742effe5
-  src/newrelic_dotnetcore_extension/integration/integration_suite_test.go: ec4af872891adfa0d7a971c95bf502c010fc96e5c38717fcbd1166b6c473fa52
-  src/newrelic_dotnetcore_extension/integration/simple_test.go: 8bff19962214320ba319ca124c78498b07174ccd408cab7ab0f22bb5855d3262
-  src/newrelic_dotnetcore_extension/supply/cli/cli_suite_test.go: 7f95c3d72fed04529f0f93434ec73cea7cf9365012ab90a1e3c4267d22ceb335
-  src/newrelic_dotnetcore_extension/supply/cli/main.go: 5bd07948f9f068b2392611626e678197577aa0c859a4cd34a820916b37bcbe25
-  src/newrelic_dotnetcore_extension/supply/supply.go: 2700a17e020f8791837178c406922c19ef78357b16030c106e7017df88f583df
-  src/newrelic_dotnetcore_extension/supply/supply_suite_test.go: 3d0d43ad13e2da3eb2bc91f19a0e4f9c527eaf15c29522a0d5f42afca1bb4b76
-  src/newrelic_dotnetcore_extension/supply/supply_test.go: 09476f00e0aa10179c3c4cf5fc38ab86d0d4088e162b41dea48e04adeb868db1
-  src/newrelic_dotnetcore_extension/vendor/.gitkeep: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
-  src/newrelic_dotnetcore_extension/vendor/github.com/google/subcommands/CONTRIBUTING: 60309c84719fa557981cfa210b14b8782e4e96751059455a6c500385be9880c8
-  src/newrelic_dotnetcore_extension/vendor/github.com/google/subcommands/LICENSE: cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30
-  src/newrelic_dotnetcore_extension/vendor/github.com/google/subcommands/README.md: 15e3d02a7d6a377493afae4558967cc83ff75341269121a89b494b060ed85519
-  src/newrelic_dotnetcore_extension/vendor/github.com/google/subcommands/subcommands.go: 10359df87c857087cddfe7a911d8867660885bbb8e63194d7b51eb1d3f0fe9f4
+  src/newrelic-dotnetcore-extension/Gopkg.lock: 4921db034b3f19a0c63418f8b17e8aab501724ae2dd751d96e3aee0ec989e2c1
+  src/newrelic-dotnetcore-extension/Gopkg.toml: b2fb8588750ab22b33e0282e541bff1c521e4c2786cdf5b77a9b0c775865662b
+  src/newrelic-dotnetcore-extension/finalize/cli/cli_suite_test.go: 39830eadaa8fcf039fb7848219629cf2426d58855621553c4a586fb7dee938de
+  src/newrelic-dotnetcore-extension/finalize/cli/main.go: 20a4d355477b7dbe544ad971eec3c5b2cebe8d69d13e04073f421069e7ebbab5
+  src/newrelic-dotnetcore-extension/finalize/finalize.go: dd915209fbab58772404d0557b46d142bf9c87eb831608558bb6e2c7a67d9ea9
+  src/newrelic-dotnetcore-extension/finalize/finalize_suite_test.go: d724cf73b21a342fb0788d532e76015c5d449bf48f4f8549e43a2636c546f236
+  src/newrelic-dotnetcore-extension/finalize/finalize_test.go: 212ac92af25b13a8ec306680103f0c383aa2b02e6e16a072c60d9df6598ce2f1
+  src/newrelic-dotnetcore-extension/hooks/hooks_debug.go: 2e5e705c0bfe35d8fc1d8513ccfb207378e30b04e124f222822b0a2632861231
+  src/newrelic-dotnetcore-extension/hooks/hooks_suite_test.go: bf6c55a890b6bd3672a04c97aa0670e19c66e1f0f387954efa4a2f06742effe5
+  src/newrelic-dotnetcore-extension/integration/integration_suite_test.go: ec4af872891adfa0d7a971c95bf502c010fc96e5c38717fcbd1166b6c473fa52
+  src/newrelic-dotnetcore-extension/integration/simple_test.go: fac3ddfec63abec16da220ce74a62b4151d5840b7ae1624a1869b8f4d2cf9249
+  src/newrelic-dotnetcore-extension/supply/cli/cli_suite_test.go: 7f95c3d72fed04529f0f93434ec73cea7cf9365012ab90a1e3c4267d22ceb335
+  src/newrelic-dotnetcore-extension/supply/cli/main.go: fee4f4a361500d021bb03c3e4ae1e64ba05c5823e7e82f19148a9395d3298dab
+  src/newrelic-dotnetcore-extension/supply/supply.go: 81c6b01529790dfe7b70b97cacc0d9b2b0a1a5117b4b8f85bd705a208dd1835b
+  src/newrelic-dotnetcore-extension/supply/supply_suite_test.go: 3d0d43ad13e2da3eb2bc91f19a0e4f9c527eaf15c29522a0d5f42afca1bb4b76
+  src/newrelic-dotnetcore-extension/supply/supply_test.go: 09476f00e0aa10179c3c4cf5fc38ab86d0d4088e162b41dea48e04adeb868db1
+  src/newrelic-dotnetcore-extension/vendor/.gitkeep: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  src/newrelic-dotnetcore-extension/vendor/github.com/google/subcommands/CONTRIBUTING: 60309c84719fa557981cfa210b14b8782e4e96751059455a6c500385be9880c8
+  src/newrelic-dotnetcore-extension/vendor/github.com/google/subcommands/LICENSE: cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30
+  src/newrelic-dotnetcore-extension/vendor/github.com/google/subcommands/README.md: 15e3d02a7d6a377493afae4558967cc83ff75341269121a89b494b060ed85519
+  src/newrelic-dotnetcore-extension/vendor/github.com/google/subcommands/subcommands.go: 10359df87c857087cddfe7a911d8867660885bbb8e63194d7b51eb1d3f0fe9f4

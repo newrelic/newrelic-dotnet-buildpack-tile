@@ -4,34 +4,20 @@ default_versions:
 dependency_deprecation_dates:
 dependencies:
 - name: hwc
-  version: 13.0.0
-  uri: https://buildpacks.cloudfoundry.org/dependencies/hwc/hwc-13.0.0-windows-amd64-634f6424.zip
-  sha256: 634f642428bb102968279a563b2a9c3f93843878a68db7d6d1a6e518a554cb12
+  version: 14.0.0
+  uri: https://buildpacks.cloudfoundry.org/dependencies/hwc/hwc-14.0.0-windows-amd64-921d0b32.zip
+  sha256: 921d0b32aaff3470962c4d14ff5e5619d645d4a9c204c504c65b7ebfc78ea987
   cf_stacks:
   - windows2012R2
   - windows2016
+  - windows
+  source: https://github.com/cloudfoundry/hwc/archive/14.0.0.tar.gz
 
 - name: newrelic
   version: latest
-  # version: 8.8.83.0
-  uri: http://download.newrelic.com/dot_net_agent/previous_releases/8.8.83.0/newrelic-agent-win-x64-8.8.83.0.zip
-  sha256: 552ee73a2b7d9237fb05d3e8935ff2b392ea09f81517ad7938fbc3384633a07e
-  cf_stacks:
-  - windows2012R2
-  - windows2016
-
-- name: newrelic
-  version: 8.7.75.0
-  uri: http://download.newrelic.com/dot_net_agent/previous_releases/8.7.75.0/newrelic-agent-win-x64-8.7.75.0.zip
-  sha256: 594d928b6b18301ebaf2e89fb6e6b083415313fed9d635dea603f8c72a2e3e4f
-  cf_stacks:
-  - windows2012R2
-  - windows2016
-
-- name: newrelic
-  version: 8.6.45.0
-  uri: http://download.newrelic.com/dot_net_agent/previous_releases/8.6.45.0/newrelic-agent-win-x64-8.6.45.0.zip
-  sha256: 98c11398ab589997aed60d48f5dce585508d3d5fcd9164ef7e924ca1e395abdf
+  # version: 8.13.798.0
+  uri: http://download.newrelic.com/dot_net_agent/previous_releases/8.13.798.0/newrelic-agent-win-x64-8.13.798.0.zip
+  sha256: a87c9e40cff29edb48479b8687de751971689944b3e19ad960ed6d1a9b6ffbd2
   cf_stacks:
   - windows2012R2
   - windows2016
