@@ -9,9 +9,9 @@ This document describes [New Relic Dotnet Extension Buildpack Tile for Pivotal C
 
 <br/>
 
-<center>
+<p align="center">
     <img src="images/nr-black-256x256.png" alt="New Relic Dotnet Extension Buildpack" height="150" width="150"/>
-</center>
+</p>
 
 <br/>
 
