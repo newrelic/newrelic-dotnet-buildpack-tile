@@ -261,6 +261,11 @@ func (s *Supplier) Run() error {
 		return err
 	}
 
+	// if there is newrelic_instrumentation.xml file in app folder, copy it to agent's "extensions" directory
+	if err := getNewRelicXmlInstrumentationFile(s, newrelicAgentFolder); err != nil {
+		return err
+	}
+
 	// // get Procfile - first check in app folder, if doesn't exisit check in buildpack dir
 	// if err := getProcfile(s, buildpackDir); err != nil {
 	// 	return err
@@ -460,6 +465,29 @@ func getNewRelicConfigFile(s *Supplier, newrelicDir string, buildpackDir string)
 			s.Log.Info("Using default newrelic.config downloaded with the agent")
 		}
 	}
+	return nil
+}
+
+func getNewRelicXmlInstrumentationFile(s *Supplier, newrelicDir string) error {
+	newrelicXmlInstrumentation := filepath.Join(s.Stager.BuildDir(), "newrelic_instrumentation.xml")
+	newrelicConfigDest := filepath.Join(s.Stager.DepDir(), newrelicDir, "extensions", "newrelic_instrumentation.xml")
+
+	newrelicXmlInstrumentationExists, err := libbuildpack.FileExists(newrelicXmlInstrumentation)
+	if err != nil {
+		s.Log.Debug("No custom instrumentation file found in app folder", err)
+		newrelicXmlInstrumentationExists = false
+	}
+
+
+	if newrelicXmlInstrumentationExists {
+		// newrelic XML instrumentation file found in app folder
+		s.Log.Info("Using custom instrumentation file \"newrelic_instrumentation.xml\" provided in the app folder")
+		s.Log.Debug("Copying %s to %s", newrelicXmlInstrumentation, newrelicConfigDest)
+		if err := libbuildpack.CopyFile(newrelicXmlInstrumentation, newrelicConfigDest); err != nil {
+			s.Log.Error("Error Copying newrelic_instrumentation.xml provided within the app folder", err)
+			return err
+		}
+	} 
 	return nil
 }
 

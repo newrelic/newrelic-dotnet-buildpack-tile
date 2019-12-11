@@ -1,11 +1,12 @@
 package packager_test
 
 import (
+	"sort"
+
 	"github.com/cloudfoundry/libbuildpack/packager"
+	httpmock "github.com/jarcoal/httpmock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"gopkg.in/jarcoal/httpmock.v1"
-	"sort"
 )
 
 var _ = Describe("Packager", func() {

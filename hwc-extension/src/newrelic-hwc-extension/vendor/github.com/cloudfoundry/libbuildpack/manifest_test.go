@@ -10,7 +10,7 @@ import (
 
 	"github.com/cloudfoundry/libbuildpack"
 	"github.com/cloudfoundry/libbuildpack/ansicleaner"
-	"gopkg.in/jarcoal/httpmock.v1"
+	httpmock "github.com/jarcoal/httpmock"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -31,7 +31,6 @@ var _ = Describe("Manifest", func() {
 	BeforeEach(func() {
 		oldCfStack = os.Getenv("CF_STACK")
 		os.Setenv("CF_STACK", "cflinuxfs2")
-
 		manifestDir = "fixtures/manifest/standard"
 		currentTime = time.Now()
 		httpmock.Reset()
@@ -158,6 +157,24 @@ ruby:
 			})
 		})
 
+		Context("stack is CFLINUXFS2", func() {
+			It("prints a warning message", func() {
+				err = os.Setenv("CF_STACK", libbuildpack.CFLINUXFS2)
+				Expect(err).To(BeNil())
+				Expect(manifest.CheckStackSupport()).To(Succeed())
+				Expect(buffer.String()).To(ContainSubstring("Please migrate this application to cflinuxfs3."))
+			})
+		})
+
+		Context("stack is windows2016", func() {
+			It("prints a warning message", func() {
+				err = os.Setenv("CF_STACK", libbuildpack.WINDOWS2016)
+				Expect(err).To(BeNil())
+				Expect(manifest.CheckStackSupport()).To(Succeed())
+				Expect(buffer.String()).To(ContainSubstring("Please restage this application to the 'windows' stack"))
+			})
+		})
+
 		Context("Stack is not supported", func() {
 			Context("stacks specified in dependencies", func() {
 				BeforeEach(func() {
@@ -203,7 +220,7 @@ ruby:
 				Expect(version).To(Equal(""))
 				Expect(err).ToNot(BeNil())
 
-				Expect(err.Error()).To(ContainSubstring("unable to read VERSION file"))
+				Expect(err).To(MatchError(ContainSubstring("unable to read VERSION file")))
 			})
 		})
 	})
@@ -340,14 +357,14 @@ ruby:
 			BeforeEach(func() { manifestDir = "fixtures/manifest/duplicate" })
 			It("returns an error", func() {
 				_, err := manifest.DefaultVersion("bower")
-				Expect(err.Error()).To(Equal("found 2 default versions for bower"))
+				Expect(err).To(MatchError("found 2 default versions for bower"))
 			})
 		})
 
 		Context("requested name does not exist", func() {
 			It("returns an error", func() {
 				_, err := manifest.DefaultVersion("notexist")
-				Expect(err.Error()).To(Equal("no default version for notexist"))
+				Expect(err).To(MatchError("no default version for notexist"))
 			})
 		})
 
@@ -374,7 +391,7 @@ ruby:
 
 				It("returns an error", func() {
 					_, err := manifest.DefaultVersion("jruby")
-					Expect(err.Error()).To(Equal("no match found for 9.3.x in []"))
+					Expect(err).To(MatchError("no match found for 9.3.x in []"))
 				})
 			})
 		})

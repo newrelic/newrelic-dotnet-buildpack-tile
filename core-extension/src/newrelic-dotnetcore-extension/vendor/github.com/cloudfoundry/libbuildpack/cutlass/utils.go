@@ -1,11 +1,14 @@
 package cutlass
 
 import (
-	"github.com/cloudfoundry/libbuildpack"
 	"io"
 	"io/ioutil"
+	"math/rand"
 	"os"
 	"path/filepath"
+	"regexp"
+
+	"github.com/cloudfoundry/libbuildpack"
 )
 
 func CopyFixture(srcDir string) (string, error) {
@@ -32,6 +35,13 @@ func fileExists(file string) (bool, error) {
 	return true, nil
 }
 
+func StripColor(input string) string {
+	const ansi = "[\u001B\u009B][[\\]()#;?]*(?:(?:(?:[a-zA-Z\\d]*(?:;[a-zA-Z\\d]*)*)?\u0007)|(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PRZcf-ntqry=><~]))"
+
+	var re = regexp.MustCompile(ansi)
+	return re.ReplaceAllString(input, "")
+}
+
 func writeToFile(source io.Reader, destFile string, mode os.FileMode) error {
 	err := os.MkdirAll(filepath.Dir(destFile), 0755)
 	if err != nil {
@@ -50,4 +60,14 @@ func writeToFile(source io.Reader, destFile string, mode os.FileMode) error {
 	}
 
 	return nil
+}
+
+var letterRunes = []rune("abcdefghijklmnopqrstuvwxyz")
+
+func RandStringRunes(n int) string {
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+	}
+	return string(b)
 }

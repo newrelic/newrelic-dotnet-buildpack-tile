@@ -2,9 +2,9 @@ package packager_test
 
 import (
 	"github.com/cloudfoundry/libbuildpack/packager"
+	httpmock "github.com/jarcoal/httpmock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"gopkg.in/jarcoal/httpmock.v1"
 )
 
 var _ = Describe("Packager", func() {
@@ -39,7 +39,7 @@ Default binary versions:
 
 		Context("modules exist", func() {
 			BeforeEach(func() {
-				buildpackDir = "./fixtures/modules"
+				buildpackDir = "./fixtures/sub_dependencies"
 			})
 			It("Renders tables of dependencies (including modules)", func() {
 				Expect(packager.Summary(buildpackDir)).To(Equal(`

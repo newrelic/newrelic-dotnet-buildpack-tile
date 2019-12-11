@@ -8,3 +8,4 @@ source .envrc
 # GOOS=linux go build -ldflags="-s -w" -o bin/finalize newrelic-hwc-extension/finalize/cli
 GOOS=windows go build -ldflags="-s -w" -o bin/supply.exe newrelic-hwc-extension/supply/cli
 GOOS=windows go build -ldflags="-s -w" -o bin/finalize.exe newrelic-hwc-extension/finalize/cli
+
