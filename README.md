@@ -39,7 +39,7 @@ The 3rd and 4th buildpacks are HWC extensions for Windows 2012 R2 and Windows 20
 All 4 buildpacks use the multi-buildpack approach of Cloud Foundry and require either the standard Dotnet Core buildpack or HWC buildpack to be specified in the buildpack chain, either in application's manifest or in the CF CLI command line.
 
 </p>
-<p class="note"><strong>Note:</strong> The cached version of this extension buildpack for both Dotnet Core and Dotnet Framework contains New Relic Dotnet Agents version <code>8.13.798.0</code></p>
+<p class="note"><strong>Note:</strong> The cached version of this extension buildpack for both Dotnet Core and Dotnet Framework contains New Relic Dotnet Agents version <code>8.27.139.0</code></p>
 
 
 <br/>
@@ -54,23 +54,23 @@ The following table provides version and version-support information about New R
     <th>Details</th>
     <tr>
         <td>Tile version</td>
-        <td>1.1.0</td>
+        <td>1.1.5</td>
     </tr>
     <tr>
         <td>Release date</td>
-        <td>February 20, 2019</td>
+        <td>May 14, 2020</td>
     </tr>
     <tr>
         <td>Software component version</td>
-        <td>New Relic Dotnet Extension Buildpack v1.1.0 (General Access)</td>
+        <td>New Relic Dotnet Extension Buildpack v1.1.5 (General Access)</td>
     </tr>
     <tr>
         <td>Compatible Ops Manager version(s)</td>
-        <td>v2.1.x, v2.2.x, v2.3.x, and v2.4.x</td>
+        <td>v2.6.x, v2.7.x, v2.8.x, and v2.9.x</td>
     </tr>
     <tr>
         <td>Compatible Pivotal Application Service versions</td>
-        <td>v2.1.x, v2.2.x, v2.3.x, and v2.4.x</td>
+        <td>v2.6.x, v2.7.x, v2.8.x, and v2.9.x</td>
     </tr>
     <tr>
         <td>IaaS support</td>

@@ -82,7 +82,7 @@ type Supplier struct {
 const bucketXMLUrl              = "https://nr-downloads-main.s3.amazonaws.com/?delimiter=/&prefix=dot_net_agent/latest_release/"
 
 // previous_releases contains all releases including latest
-const latestNrDownloadUrl       = "http://download.newrelic.com/dot_net_agent/previous_releases/9.9.9.9/newrelic-agent-win-x64-9.9.9.9.zip"
+const nrAgentDownloadUrl        = "http://download.newrelic.com/dot_net_agent/previous_releases/9.9.9.9/newrelic-agent-win-x64-9.9.9.9.zip"
 const latestNrDownloadSha256Url = "http://download.newrelic.com/dot_net_agent/previous_releases/9.9.9.9/SHA256/newrelic-agent-win-x64-9.9.9.9.zip.sha256"
 
 const nrVersionPattern          = "((\\d{1,3}\\.){3}\\d{1,3})" // regexp pattern to find agent version from urls
@@ -136,40 +136,11 @@ func (s *Supplier) Run() error {
 	}
 	s.Log.Debug("buildpackDir: %v", buildpackDir)
 
-	nrDownloadURL := latestNrDownloadUrl
-	nrDownloadFile := ""
-	nrVersion := "latest"
-	nrSha256Sum := ""
-	v := os.Getenv("NEW_RELIC_AGENT_VERSION")
-	s.Log.Debug("NEW_RELIC_AGENT_VERSION specified by environment variable: <%s>", v)
-	if v == "" {
-		for _, entry := range s.Manifest.(*libbuildpack.Manifest).ManifestEntries {
-			if entry.Dependency.Name == "newrelic" {
-				nrDownloadURL = entry.URI
-				nrVersion = entry.Dependency.Version
-				nrDownloadFile = entry.File
-				nrSha256Sum = entry.SHA256
-				s.Log.Debug("newrelic agent: \n\tdownload Url: %s\n\tversion: %s\n\tcached file: %s\n\tchecksum: %s", nrDownloadURL, nrVersion, nrDownloadFile, nrSha256Sum)
-				break;
-			}
-		}
-	} else { // agent version specified by environment variable
-		nrVersion = v
-		// nrDownloadURL = ""
-	}
-
 	s.Log.BeginStep("Creating cache directory " + s.Stager.CacheDir())
 	if err := os.MkdirAll(s.Stager.CacheDir(), 0755); err != nil {
 		s.Log.Error("Failed to create cache directory "+s.Stager.CacheDir(), err)
 		return err
 	}
-
-
-	//Begin: Download and Install
-	// 1: download the agent using the provided NEW_RELIC_DOWNLOAD_URL
-	// 2: use cached dependency -- no download required - just copy the file from cache
-	// 3: if dependency is from buildoack's manifest, use Pivotal's standar InstallDependency()
-
 
 	// set temp directory for downloads
 	s.Log.Debug("Creating tmp folder for downloading agent")
@@ -183,10 +154,62 @@ func (s *Supplier) Run() error {
 	nrAgentPath := filepath.Join(s.Stager.BuildDir(), newrelicAgentFolder)
 	s.Log.Debug("New Relic Agent Path: " + nrAgentPath)
 
+
+	nrDownloadURL := nrAgentDownloadUrl
+	nrDownloadFile := ""
+	nrVersion := "latest"
+	nrSha256Sum := ""
+
+	// #################################################################
+	// determine the method to obtain the agent ########################
+	nrav, isAgenVersionEnvSet := os.LookupEnv("NEW_RELIC_AGENT_VERSION")
+	downloadURL, isAgentUrlEnvSet := os.LookupEnv("NEW_RELIC_DOWNLOAD_URL")
+	cachedBuildpack := false
+	if (isAgenVersionEnvSet && isAgentUrlEnvSet) {
+		 s.Log.Warning("\nboth NEW_RELIC_AGENT_VERSION and NEW_RELIC_DOWNLOAD_URL are specified. Ignoring NEW_RELIC_AGENT_VERSION and using NEW_RELIC_DOWNLOAD_URL")
+		 nrav = ""
+	}
+	//////////////////////////////////////////////////////////////////////
+	for _, entry := range s.Manifest.(*libbuildpack.Manifest).ManifestEntries {
+		if entry.Dependency.Name == "newrelic" {
+			nrDownloadURL = entry.URI
+			nrVersion = entry.Dependency.Version
+			nrDownloadFile = entry.File
+			nrSha256Sum = entry.SHA256
+			if nrDownloadFile != "" {
+				cachedBuildpack = true
+			}
+			break;
+			break;
+		}
+	}
+
+	if isAgenVersionEnvSet {
+		if cachedBuildpack {
+			s.Log.Warning("\nNEW_RELIC_AGENT_VERSION env variable cannot be used with cached extension buildpack. Ignoring NEW_RELIC_AGENT_VERSION")
+		} else {
+			nrVersion = nrav
+			s.Log.Debug("NEW_RELIC_AGENT_VERSION specified by environment variable: <%s>", nrVersion)
+			// nrDownloadURL = ""
+		}
+	}
+	//////////////////////////////////////////////////////////////////////
+
+
+	//Begin: Download and Install
+	/*
+		// this approach is dependent on dependencies from manifest.yml file
+		// we use different approaches to obtain the agent
+		//	1 - using NEW_RELIC_DOWNLOAD_URL env var
+		//	2 - cached dependencies (use manifest dependency entries to copy the file from cache)
+		//	3 - if dependency is from buildoack's manifest, use Pivotal's standard InstallDependency()
+		// 		version "latest" from manifest dependencies (figures out the latest and composes the URL)
+	*/
+
+
 	// get agent version
-	downloadAgentFile := true
-	extractAgentFile := true
-	if downloadURL, exists := os.LookupEnv("NEW_RELIC_DOWNLOAD_URL"); exists == true {
+	needToDownloadNrAgentFile := true
+	if isAgentUrlEnvSet {
 
 		s.Log.Info("Using NEW_RELIC_DOWNLOAD_URL environment variable...")
 		nrDownloadURL = strings.TrimSpace(downloadURL)
@@ -195,10 +218,8 @@ func (s *Supplier) Run() error {
 		} else {
 			nrSha256Sum = "" // ignore sha256 sum if not set by env var
 		}
-		downloadAgentFile = true
-		extractAgentFile = true
 
-	} else if nrDownloadFile != "" { // this file is cached by the buildpack
+	} else if cachedBuildpack { // this file is cached by the buildpack
 
 		s.Log.Info("Using cached dependencies...")
 		source := nrDownloadFile
@@ -210,84 +231,92 @@ func (s *Supplier) Run() error {
 			return err
 		}
 
-		extractAgentFile = true
+		needToDownloadNrAgentFile = false
 
 	} else {
 
-		if (nrDownloadURL == "" || in_array(strings.ToLower(nrVersion), []string{"", "0.0.0.0", "latest", "current"})) {
-			s.Log.Info("Obtaining latest agent version ")
-			latestNrVersion := nrVersion
-			latestNrVersion, err = getLatestAgentVersion(s)
-			if err != nil {
-				s.Log.Error("Unable to obtain latest agent version from the metadata bucket", err)
-				return err
+		if (nrDownloadURL == "" || isAgenVersionEnvSet || in_array(strings.ToLower(nrVersion), []string{"", "0.0.0.0", "latest", "current"})) {
+			nrAgentVersion := nrVersion
+			if isAgenVersionEnvSet {
+				s.Log.Info("Obtaining requested agent version ")
+			} else {
+				s.Log.Info("Obtaining latest agent version ")
+				nrAgentVersion, err = getLatestAgentVersion(s)
+				if err != nil {
+					s.Log.Error("Unable to obtain latest agent version from the metadata bucket", err)
+					return err
+				}
 			}
-			s.Log.Debug("Latest agent version is " + latestNrVersion)
+
+			s.Log.Debug("Using agent version: " + nrAgentVersion)
 
 			// substitute agent version in the url
-			updatedUrl, err := substituteUrlVersion(s, latestNrDownloadUrl, latestNrVersion)
+			updatedUrl, err := substituteUrlVersion(s, nrAgentDownloadUrl, nrAgentVersion)
 			if err != nil {
 				s.Log.Error("filed to substitute agent version in url")
 				return err
 			}
 			nrDownloadURL = updatedUrl
 
-			// ### THIS ROUTINE IS NOT NEEDED if using s.Installer.InstallDependency()
-			// // read sha256 sum of the agent from NR download site
-			//
-			// latestNrAgentSha256Sum, err := getLatestNrAgentSha256Sum(s, tmpDir, latestNrVersion)
-			// if err != nil {
-			// 	s.Log.Error("Can't get SHA256 checksum for latest New Relic Agent download", err)
-			// 	return err
-			// }
-			// nrSha256Sum = latestNrAgentSha256Sum
+			// if agent is being downloaded read sha256 sum of the agent from NR download site
+			
+			latestNrAgentSha256Sum, err := getLatestNrAgentSha256Sum(s, tmpDir, nrAgentVersion)
+			if err != nil {
+				s.Log.Error("Can't get SHA256 checksum for latest New Relic Agent download", err)
+				return err
+			}
+			nrSha256Sum = latestNrAgentSha256Sum
 
 		}
-		downloadAgentFile = true
 	}
 
-	if downloadAgentFile { // either dependency specified in manifest.yml or NEW_RELIC_DOWNLOAD_URL specified
+	// Start: downloading AgentFile ##############################################################################
+	if needToDownloadNrAgentFile { // either dependency specified in manifest.yml or NEW_RELIC_DOWNLOAD_URL specified
 		s.Log.BeginStep("Downloading New Relic agent...")
-		if extractAgentFile { // NEW_RELIC_DOWNLOAD_URL specified
-			s.Log.Debug("downloading the agent using downloadDependency() ...")
-			if err := downloadDependency(s, nrDownloadURL, nrDownloadLocalFilename); err != nil {
-				return err
-			}
-
-			// compare sha256 sum of the downloaded file against expected sum
-			if nrSha256Sum != "" {
-				if err := checkSha256(nrDownloadLocalFilename, nrSha256Sum); err != nil {
-					s.Log.Error("SHA256 checksum failed", err)
-					return err
-				}
-			}
-		} else { // dependency from manifest
-			newrelicDependency := libbuildpack.Dependency{Name: "newrelic", Version: nrVersion}
-			s.Log.Debug("downloading the agent using s.Installer.InstallDependency() ...")
-			if err := s.Installer.InstallDependency(newrelicDependency, nrAgentPath); err != nil {
-				s.Log.Error("Error Installing  NewRelic Agent", err)
-				return err
-			}
-
-		}
-	} // End: downloadAgentFile
-
-	if extractAgentFile { // only if NEW_RELIC_DOWNLOAD_URL was used or cached agent was copied
-		// when dotnet framework agent is extracted, it doesn't create it's folder.
-		// need to set agent dir to s.Stager.BuildDir()/newrelic or s.Stager.DepDir()/newrelic
-		s.Log.BeginStep("Extracting NewRelic .Net Framework Agent to %s", nrAgentPath) // nrDownloadLocalFilename)
-		if err := libbuildpack.ExtractZip(nrDownloadLocalFilename, nrAgentPath); err != nil {
-			s.Log.Error("Error Extracting NewRelic .Net Framework Agent", err)
+		s.Log.Debug("downloading the agent using downloadDependency() ...")
+		if err := downloadDependency(s, nrDownloadURL, nrDownloadLocalFilename); err != nil {
 			return err
 		}
 	}
-	// End: extractAgentFile
+
+	// compare sha256 sum of the downloaded file against expected sum
+	if nrSha256Sum != "" {
+		if err := checkSha256(nrDownloadLocalFilename, nrSha256Sum); err != nil {
+			s.Log.Error("New Relic agent SHA256 checksum failed: ", err)
+			return err
+		}
+	}
+
+	// // dependency from manifest -- use s.Installer.InstallDependency()
+	// newrelicDependency := libbuildpack.Dependency{Name: "newrelic", Version: nrVersion}
+	// s.Log.Debug("downloading the agent using s.Installer.InstallDependency() ...")
+	// if err := s.Installer.InstallDependency(newrelicDependency, nrAgentPath); err != nil {
+	// 	s.Log.Error("Error Installing  NewRelic Agent", err)
+	// 	return err
+	// }
+	// End: downloading AgentFile ################################################################################
+
+
+	// Start: extracting AgentFile ###############################################################################
+	// when dotnet framework agent is extracted, it doesn't create it's folder.
+	// need to set agent dir to s.Stager.BuildDir()/newrelic or s.Stager.DepDir()/newrelic
+	s.Log.BeginStep("Extracting NewRelic .Net Framework Agent to %s", nrAgentPath) // nrDownloadLocalFilename)
+	if err := libbuildpack.ExtractZip(nrDownloadLocalFilename, nrAgentPath); err != nil {
+		s.Log.Error("Error Extracting NewRelic .Net Framework Agent", err)
+		return err
+	}
+	// End: extracting AgentFile #################################################################################
 
 
 
 
 	// decide which newrelic.config file to use (appdir, buildpackdir, agentdir)
 	if err := getNewRelicConfigFile(s, nrAgentPath, buildpackDir); err != nil {
+		return err
+	}
+
+	// if there is newrelic_instrumentation.xml file in app folder, copy it to agent's "extensions" directory
+	if err := getNewRelicXmlInstrumentationFile(s, nrAgentPath); err != nil {
 		return err
 	}
 
@@ -386,26 +415,26 @@ func substituteUrlVersion(s *Supplier, url string, nrVersion string) (string, er
 	return strings.Replace(url, uriVersion, nrVersion, -1), nil
 }
 
-// func getLatestNrAgentSha256Sum(s *Supplier, tmpDownloadDir string, latestNrVersion string) (string, error) {
-// 	s.Log.Info("Obtaining Agent sha256 Sum from New Relic")
-// 	shaUrl, err := substituteUrlVersion(s, latestNrDownloadSha256Url, latestNrVersion)
-// 	if err != nil {
-// 		s.Log.Error("filed to substitute agent version in sha256 url")
-// 		return "", err
-// 	}
+func getLatestNrAgentSha256Sum(s *Supplier, tmpDownloadDir string, latestNrVersion string) (string, error) {
+	s.Log.Info("Obtaining Agent sha256 Sum from New Relic")
+	shaUrl, err := substituteUrlVersion(s, latestNrDownloadSha256Url, latestNrVersion)
+	if err != nil {
+		s.Log.Error("filed to substitute agent version in sha256 url")
+		return "", err
+	}
 
-// 	sha256File := filepath.Join(tmpDownloadDir, "nragent.sha256")
-// 	if err := downloadDependency(s, shaUrl, sha256File); err != nil {
-// 		return "", err
-// 	}
+	sha256File := filepath.Join(tmpDownloadDir, "nragent.sha256")
+	if err := downloadDependency(s, shaUrl, sha256File); err != nil {
+		return "", err
+	}
 
-// 	sha256Sum, err := ioutil.ReadFile(sha256File)
-// 	if err != nil {
-// 		return "", err
-// 	}
+	sha256Sum, err := ioutil.ReadFile(sha256File)
+	if err != nil {
+		return "", err
+	}
 
-// 	return strings.Split(string(sha256Sum), " ")[0], nil
-// }
+	return strings.Split(string(sha256Sum), " ")[0], nil
+}
 
 func downloadDependency(s *Supplier, url string, filepath string) (err error) {
 	s.Log.Debug("Downloading from [%s]", url)
@@ -494,6 +523,29 @@ func getNewRelicConfigFile(s *Supplier, nrAgentPath string, buildpackDir string)
 			s.Log.Info("Using default newrelic.config downloaded with the agent")
 		}
 	}
+	return nil
+}
+
+func getNewRelicXmlInstrumentationFile(s *Supplier, nrAgentPath string) error {
+	newrelicXmlInstrumentation := filepath.Join(s.Stager.BuildDir(), "newrelic_instrumentation.xml")
+	newrelicConfigDest := filepath.Join(s.Stager.DepDir(), nrAgentPath, "extensions", "newrelic_instrumentation.xml")
+
+	newrelicXmlInstrumentationExists, err := libbuildpack.FileExists(newrelicXmlInstrumentation)
+	if err != nil {
+		s.Log.Debug("No custom instrumentation file found in app folder", err)
+		newrelicXmlInstrumentationExists = false
+	}
+
+
+	if newrelicXmlInstrumentationExists {
+		// newrelic XML instrumentation file found in app folder
+		s.Log.Info("Using custom instrumentation file \"newrelic_instrumentation.xml\" provided in the app folder")
+		s.Log.Debug("Copying %s to %s", newrelicXmlInstrumentation, newrelicConfigDest)
+		if err := libbuildpack.CopyFile(newrelicXmlInstrumentation, newrelicConfigDest); err != nil {
+			s.Log.Error("Error Copying newrelic_instrumentation.xml provided within the app folder", err)
+			return err
+		}
+	} 
 	return nil
 }
 
