@@ -6,6 +6,15 @@
 These are release notes for New Relic Dotnet Extension Buildpack for PCF.
 
 
+## <a id="ver-v1.1.5"></a> v1.1.5
+<strong>General Access Release Date:</strong> May 14, 2020
+
+Features included in this release:
+
+* upgrade to tile metadata version 2.0
+* Support vmw Tanzu 2.9
+
+
 ## <a id="ver-v1.1.0"></a> v1.1.0
 <strong>General Access Release Date:</strong> February 20, 2019
 
