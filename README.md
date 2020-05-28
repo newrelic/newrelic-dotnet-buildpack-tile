@@ -5,7 +5,7 @@
 
 <br/><br/>
 
-This document describes [New Relic Dotnet Extension Buildpack Tile for Pivotal Cloud Foundry (PCF)](https://network.pivotal.io/products/new-relic-dotnet-buildpack/) and instructions on how to install and use New Relic's Dotnet extension tile to bind New Relic agents to Dotnet Core or Dotnet Framework applications to monitor them in [Pivotal Cloud Foundry](https://pivotal.io/platform) (PCF) environment.
+This document describes [New Relic Dotnet Extension Buildpack Tile for VMware Tanzu (PCF)](https://network.pivotal.io/products/new-relic-dotnet-buildpack/) and instructions on how to install and use New Relic's Dotnet extension tile to bind New Relic agents to Dotnet Core or Dotnet Framework applications to monitor them in [VMware Tanzu](https://tanzu.vmware.com/tanzu) (PCF) environment.
 
 <br/>
 
