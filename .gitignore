@@ -1,0 +1,8 @@
+hold/
+tmp/
+product/
+release/
+newrelic-dotnetcore-extension_buildpack-*.zip
+newrelic-hwc-extension_buildpack-*.zip
+.DS_Store
+

@@ -5,9 +5,9 @@ dependency_deprecation_dates:
 dependencies:
 - name: newrelic
   version: latest
-  # version: 8.27.139.0
-  uri: http://download.newrelic.com/dot_net_agent/previous_releases/8.27.139.0/newrelic-netcore20-agent_8.27.139.0_amd64.tar.gz
-  sha256: ad116ae4112729243afd28cace336715f848c5c647a0cf6b41051f26b77e0322
+  # version: 8.31.0.0
+  uri: http://download.newrelic.com/dot_net_agent/previous_releases/8.31.0/newrelic-netcore20-agent_8.31.0.0_amd64.tar.gz
+  sha256: 5ea9620de0d3ea72859eec058e3cd811f8bafcab6957f005b9d1efc73a9cb400
   cf_stacks:
   - cflinuxfs2
   - cflinuxfs3

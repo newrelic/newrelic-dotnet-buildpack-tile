@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"strconv"
 
 	"bytes"
 	"encoding/json"
@@ -81,10 +82,10 @@ type Supplier struct {
 const bucketXMLUrl              = "https://nr-downloads-main.s3.amazonaws.com/?delimiter=/&prefix=dot_net_agent/latest_release/"
 
 // previous_releases contains all releases including latest
-const nrAgentDownloadUrl        = "http://download.newrelic.com/dot_net_agent/previous_releases/9.9.9.9/newrelic-netcore20-agent_9.9.9.9_amd64.tar.gz"
-const latestNrDownloadSha256Url = "http://download.newrelic.com/dot_net_agent/previous_releases/9.9.9.9/SHA256/newrelic-netcore20-agent_9.9.9.9_amd64.tar.gz.sha256"
+var nrAgentDownloadUrl        = "http://download.newrelic.com/dot_net_agent/previous_releases/9.9.9/newrelic-netcore20-agent_9.9.9.0_amd64.tar.gz"
+var latestNrDownloadSha256Url = "http://download.newrelic.com/dot_net_agent/previous_releases/9.9.9/SHA256/newrelic-netcore20-agent_9.9.9.0_amd64.tar.gz.sha256"
 
-const nrVersionPattern          = "((\\d{1,3}\\.){3}\\d{1,3})" // regexp pattern to find agent version from urls
+var nrVersionPattern          = "((\\d{1,3}\\.){2}\\d{1,3})" // regexp pattern to find agent version from urls
 const newrelicAgentFolder       = "newrelic-netcore20-agent"
 const newrelicProfilerSharedLib = "libNewRelicProfiler.so"
 
@@ -243,10 +244,24 @@ func (s *Supplier) Run() error {
 
 	} else {
 
-		if (nrDownloadURL == "" || isAgenVersionEnvSet || in_array(strings.ToLower(nrVersion), []string{"", "0.0.0.0", "latest", "current"})) {
+		if (nrDownloadURL == "" || isAgenVersionEnvSet || in_array(strings.ToLower(nrVersion), []string{"", "0.0.0", "0.0.0.0", "latest", "current"})) {
 			nrAgentVersion := nrVersion
 			if isAgenVersionEnvSet {
 				s.Log.Info("Obtaining requested agent version ")
+
+			  v := strings.Split(string(nrAgentVersion), ".")
+			  vc := len(v)
+			  v1, _ := strconv.Atoi(v[0])
+			  v2, _ := strconv.Atoi(v[1])
+
+			  if v1 < 8 || (v1 == 8 && (v2 <= 25 || v2 == 27 || v2 == 28)) {
+			  	// pre-opensource versioning
+			  	nrAgentDownloadUrl        = "http://download.newrelic.com/dot_net_agent/previous_releases/9.9.9.9/newrelic-netcore20-agent_9.9.9.9_amd64.tar.gz"
+					latestNrDownloadSha256Url = "http://download.newrelic.com/dot_net_agent/previous_releases/9.9.9.9/SHA256/newrelic-netcore20-agent_9.9.9.9_amd64.tar.gz.sha256"
+					nrVersionPattern          = "((\\d{1,3}\\.){3}\\d{1,3})"
+			  } else if vc == 4 {
+			  	nrAgentVersion = nrAgentVersion[0:strings.LastIndex(nrAgentVersion, ".")]
+			  }
 			} else {
 				s.Log.Info("Obtaining latest agent version ")
 				nrAgentVersion, err = getLatestAgentVersion(s)

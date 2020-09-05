@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"strconv"
 
 	"bytes"
 	"encoding/json"
@@ -82,10 +83,10 @@ type Supplier struct {
 const bucketXMLUrl              = "https://nr-downloads-main.s3.amazonaws.com/?delimiter=/&prefix=dot_net_agent/latest_release/"
 
 // previous_releases contains all releases including latest
-const nrAgentDownloadUrl        = "http://download.newrelic.com/dot_net_agent/previous_releases/9.9.9.9/newrelic-agent-win-x64-9.9.9.9.zip"
-const latestNrDownloadSha256Url = "http://download.newrelic.com/dot_net_agent/previous_releases/9.9.9.9/SHA256/newrelic-agent-win-x64-9.9.9.9.zip.sha256"
+var nrAgentDownloadUrl        = "http://download.newrelic.com/dot_net_agent/previous_releases/9.9.9/newrelic-agent-win-x64-9.9.9.0.zip"
+var latestNrDownloadSha256Url = "http://download.newrelic.com/dot_net_agent/previous_releases/9.9.9/SHA256/newrelic-agent-win-x64-9.9.9.0.zip.sha256"
 
-const nrVersionPattern          = "((\\d{1,3}\\.){3}\\d{1,3})" // regexp pattern to find agent version from urls
+var nrVersionPattern          = "((\\d{1,3}\\.){2}\\d{1,3})" // regexp pattern to find agent version from urls
 const newrelicAgentFolder       = "newrelic"
 const newrelicProfilerSharedLib = "NewRelic.Profiler.dll"
 
@@ -235,10 +236,24 @@ func (s *Supplier) Run() error {
 
 	} else {
 
-		if (nrDownloadURL == "" || isAgenVersionEnvSet || in_array(strings.ToLower(nrVersion), []string{"", "0.0.0.0", "latest", "current"})) {
+		if (nrDownloadURL == "" || isAgenVersionEnvSet || in_array(strings.ToLower(nrVersion), []string{"", "0.0.0", "0.0.0.0", "latest", "current"})) {
 			nrAgentVersion := nrVersion
 			if isAgenVersionEnvSet {
 				s.Log.Info("Obtaining requested agent version ")
+
+			  v := strings.Split(string(nrAgentVersion), ".")
+			  vc := len(v)
+			  v1, _ := strconv.Atoi(v[0])
+			  v2, _ := strconv.Atoi(v[1])
+
+			  if v1 < 8 || (v1 == 8 && (v2 <= 25 || v2 == 27 || v2 == 28)) {
+			  	// pre-opensource versioning
+					nrAgentDownloadUrl        = "http://download.newrelic.com/dot_net_agent/previous_releases/9.9.9.9/newrelic-agent-win-x64-9.9.9.9.zip"
+					latestNrDownloadSha256Url = "http://download.newrelic.com/dot_net_agent/previous_releases/9.9.9.9/SHA256/newrelic-agent-win-x64-9.9.9.9.zip.sha256"
+					nrVersionPattern          = "((\\d{1,3}\\.){3}\\d{1,3})"
+			  } else if vc == 4 {
+			  	nrAgentVersion = nrAgentVersion[0:strings.LastIndex(nrAgentVersion, ".")]
+			  }
 			} else {
 				s.Log.Info("Obtaining latest agent version ")
 				nrAgentVersion, err = getLatestAgentVersion(s)

@@ -1,4 +1,4 @@
-NewRelic_Dotnet_Buildpack_for_PCF-1.1.5.txt
+NewRelic_Dotnet_Buildpack_for_PCF-1.1.6.txt
 
 
 
