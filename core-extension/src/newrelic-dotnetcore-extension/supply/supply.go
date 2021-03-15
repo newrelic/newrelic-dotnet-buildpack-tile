@@ -2,6 +2,7 @@ package supply
 
 import (
 	// "crypto/md5"
+	"fmt"
 	"encoding/xml"
 	"io"
 	"io/ioutil"
@@ -101,6 +102,8 @@ var nrManifest struct {
 	nrDownloadFile string
 	nrSha256Sum    string
 }
+
+var envVars = make(map[string]interface{}, 0)
 
 // RULES for installing newrelic agent:
 //	if:
@@ -603,52 +606,47 @@ func buildProfileD(s *Supplier) error {
 
 	// search criteria for app name and license key in ENV, VCAP_APPLICATION, VCAP_SERVICES
 	// order of precedence
-	//		1 env vars
-	//		2 user-provided-service
-	//		3 serevice broker instance
+	//		1 check for app name in VCAP_APPLICATION
+	//		2 check for license key in the service broker instance from VCAP_SERVICES
+	//		3 overwrite with New Relic USER-PROVIDED-SERVICE from VCAP_SERVICES
+	//		4 overwrite with New Relic environment variables -- highest precedence
 	//
-	// always look in UPS credentials for other values that might be set (i.e. distributed tracing)
+	// always look in UPS credentials for other values that might be set (e.x. distributed tracing)
 
-	newrelicAppName := ""
-	newrelicLicenseKey := ""
-	newrelicDistributedTracing := ""
+	envVars["NEW_RELIC_APP_NAME"] = parseVcapApplicationEnv(s) // VCAP_APPLICATION -- always exists
 
-	newrelicAppName = parseVcapApplicationEnv(s)
-
-	// NEW_RELIC_LICENSE_KEY env var always overwrites other license keys
-	if _, exists := os.LookupEnv("NEW_RELIC_LICENSE_KEY"); exists == false {
-		vCapServicesEnvValue := os.Getenv("VCAP_SERVICES")
-		if vCapServicesEnvValue == "" {
-			s.Log.Warning("Please make sure New Relic License Key is defined by \"setting env var\", or using \"user-provided-service\", \"service broker service instance\", or \"newrelic.config file\"")
-			// s.Log.Warning("Please set New Relic license key by setting environment variable, or binding to a New Relic service instance / user-provided-service")
-			// return errors.New("Error: No New Relic License Key found in the environment!")
+	// see if the app is bound to new relic svc broker instance
+	vCapServicesEnvValue := os.Getenv("VCAP_SERVICES")
+	if (!in_array(vCapServicesEnvValue, []string{"", "{}"})) {
+		var vcapServices map[string]interface{}
+		if err := json.Unmarshal([]byte(vCapServicesEnvValue), &vcapServices); err != nil {
+	    	s.Log.Error("", err)
 		} else {
-			var vcapServices map[string]interface{}
-			if err := json.Unmarshal([]byte(vCapServicesEnvValue), &vcapServices); err != nil {
-		    	s.Log.Error("", err)
-			} else {
-				newrelicLicenseKey = parseNewRelicService(s, vcapServices)
-				appName, licenseKey, distributedTracing := parseUserProvidedServices(s, vcapServices, newrelicAppName, newrelicLicenseKey, newrelicDistributedTracing)
-				newrelicAppName = appName
-				newrelicLicenseKey = licenseKey
-				newrelicDistributedTracing = distributedTracing
-			}
+			envVars["NEW_RELIC_LICENSE_KEY"] = parseNewRelicService(s, vcapServices) // from svc-broker instance in VCAP_SERVICES
 		}
+		parseUserProvidedServices(s, vcapServices) // fills envVars with all other env vars from USER-PROVIDED-SERVICE in VCAP_SERVICES if any
 	}
 
-	if newrelicAppName != "" {
-		profileDScriptContentBuffer.WriteString(strings.Join([]string{"export NEW_RELIC_APP_NAME=", newrelicAppName}, ""))
-		profileDScriptContentBuffer.WriteString("\n")
+	// NEW_RELIC_APP_NAME env var always overwrites other app names
+	newrelicAppName := os.Getenv("NEW_RELIC_APP_NAME")
+	if (newrelicAppName > "") {
+		envVars["NEW_RELIC_APP_NAME"] = newrelicAppName
+	}
+	// NEW_RELIC_LICENSE_KEY env var always overwrites other license keys
+	newrelicLicenseKey := os.Getenv("NEW_RELIC_LICENSE_KEY")
+	if (newrelicLicenseKey > "") {
+		envVars["NEW_RELIC_LICENSE_KEY"] = newrelicLicenseKey
 	}
 
-	if newrelicLicenseKey != "" {
-		profileDScriptContentBuffer.WriteString(strings.Join([]string{"export NEW_RELIC_LICENSE_KEY=", newrelicLicenseKey}, ""))
-		profileDScriptContentBuffer.WriteString("\n")
+	licenseKey, ok := envVars["NEW_RELIC_LICENSE_KEY"].(string)
+	if (!ok || licenseKey == "") {
+		s.Log.Warning("Please make sure New Relic License Key is defined by \"setting env var\", using \"user-provided-service\", \"service broker service instance\", or \"newrelic.config file\"")
 	}
 
-	if newrelicDistributedTracing != "" {
-		profileDScriptContentBuffer.WriteString(strings.Join([]string{"export NEW_RELIC_DISTRIBUTED_TRACING_ENABLED=", newrelicDistributedTracing}, ""))
-		profileDScriptContentBuffer.WriteString("\n")
+	for key, val := range envVars {
+		if (val.(string) > "") {
+			profileDScriptContentBuffer.WriteString(fmt.Sprintf("export %s=%s\n", key, val))
+		}
 	}
 
 	profileDScript := profileDScriptContentBuffer.String()
@@ -671,9 +669,10 @@ func setNewRelicProfilerProperties(s *Supplier) bytes.Buffer {
 }
 
 func parseVcapApplicationEnv(s *Supplier) string {
-	newrelicAppName := ""
+	s.Log.Debug("Parsing VcapApplication env")
 	// NEW_RELIC_APP_NAME env var always overwrites other app names
-	if _, exists := os.LookupEnv("NEW_RELIC_APP_NAME"); exists == false {
+	newrelicAppName := os.Getenv("NEW_RELIC_APP_NAME")
+	if (newrelicAppName == "") {
 		vCapApplicationEnvValue := os.Getenv("VCAP_APPLICATION")
 		var vcapApplication map[string]interface{}
 		if err := json.Unmarshal([]byte(vCapApplicationEnvValue), &vcapApplication); err != nil {
@@ -685,8 +684,6 @@ func parseVcapApplicationEnv(s *Supplier) string {
 				newrelicAppName = appName
 			}
 		}
-	} else {
-		newrelicAppName = ""
 	}
 	return newrelicAppName
 }
@@ -713,29 +710,34 @@ func parseNewRelicService(s *Supplier, vcapServices map[string]interface{}) stri
 	return newrelicLicenseKey
 }
 
-func parseUserProvidedServices(s *Supplier, vcapServices map[string]interface{}, newrelicAppName string, newrelicLicenseKey string, newrelicDistributedTracing string) (string, string, string) {
+func parseUserProvidedServices(s *Supplier, vcapServices map[string]interface{}) {
 	// check user-provided-services
 	userProvidesServicesElement, _ := vcapServices["user-provided"].([]interface{})
-    for _, ups := range userProvidesServicesElement {
-    	element, _ := ups.(map[string]interface{})
-    	if found := strings.Contains(strings.ToLower(element["name"].(string)), "newrelic"); found == true {
+  for _, ups := range userProvidesServicesElement {
+  	element, _ := ups.(map[string]interface{})
+  	if found := strings.Contains(strings.ToLower(element["name"].(string)), "newrelic"); found == true {
 			cmap, _ := element["credentials"].(map[string]interface{})
-        	for key, cred := range cmap {
-        		if (in_array(strings.ToLower(key), []string{"license_key", "licensekey", "new_relic_license_key"})) {
-        			newrelicLicenseKey = cred.(string) // license key from user-provided-service -- overwrites license key from service broker
-					s.Log.Debug("VCAP_SERVICES." + element["name"].(string) + ".credentials." + key + "=" + "**redacted**") //newrelicLicenseKey)
-				} else if (in_array(strings.ToLower(key), []string{"appname", "app_name", "new_relic_app_name"})) {
-					newrelicAppName = cred.(string) // application name from user-provided-service -- overwrites name from service broker
-					s.Log.Info("VCAP_SERVICES." + element["name"].(string) + ".credentials." + key + "=" + newrelicAppName)
-				} else if (in_array(strings.ToLower(key), []string{"distributedtracing", "distributed_tracing", "new_relic_distributed_tracing", "new_relic_distributed_tracing_enabled"})) {
-					// NEW_RELIC_DISTRIBUTED_TRACING_ENABLED
-					newrelicDistributedTracing = cred.(string) // NEW_RELIC_DISTRIBUTED_TRACING_ENABLED
-					s.Log.Info("VCAP_SERVICES." + element["name"].(string) + ".credentials." + key + "=" + newrelicDistributedTracing)
+    	for key, cred := range cmap {
+    		if (key == "" || cred.(string) == "") {
+    			continue
+    		}
+    		envVarName := key
+    		if (in_array(strings.ToUpper(key), []string{"LICENSE_KEY", "LICENSEKEY"})) {
+    			envVarName = "NEW_RELIC_LICENSE_KEY"
+					s.Log.Debug("VCAP_SERVICES." + element["name"].(string) + ".credentials." + key + "=" + "**redacted**")
+				} else if (in_array(strings.ToUpper(key), []string{"APP_NAME", "APPNAME"})) {
+					envVarName = "NEW_RELIC_APP_NAME"
+					s.Log.Debug("VCAP_SERVICES." + element["name"].(string) + ".credentials." + key + "=" + cred.(string))
+				} else if (in_array(strings.ToUpper(key), []string{"DISTRIBUTED_TRACING", "DISTRIBUTEDTRACING"})) {
+					envVarName = "NEW_RELIC_DISTRIBUTED_TRACING_ENABLED"
+					s.Log.Debug("VCAP_SERVICES." + element["name"].(string) + ".credentials." + key + "=" + cred.(string))
+				} else if (strings.HasPrefix(strings.ToUpper(key), "NEW_RELIC_") || strings.HasPrefix(strings.ToUpper(key), "NEWRELIC_")) {
+					envVarName = strings.ToUpper(key)
 				}
+				envVars[envVarName] = cred.(string) // save user-provided creds for adding to the app env
 			}
 		}
 	}
-	return newrelicAppName, newrelicLicenseKey, newrelicDistributedTracing
 }
 
 func writeToFile(source io.Reader, destFile string, mode os.FileMode) error {
