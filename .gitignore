@@ -4,5 +4,6 @@ product/
 release/
 newrelic-dotnetcore-extension_buildpack-*.zip
 newrelic-hwc-extension_buildpack-*.zip
+notes
 .DS_Store
 

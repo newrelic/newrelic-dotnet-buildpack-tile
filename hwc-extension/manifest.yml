@@ -6,8 +6,8 @@ dependencies:
 - name: newrelic
   version: latest
   # version: 9.1.1.0
-  uri: https://download.newrelic.com/dot_net_agent/previous_releases/9.1.1/newrelic-agent-win-x64-9.1.1.0.zip
-  sha256: e61dcb55f932236efc64b7275409f14ecbdc0a02fe9f73ff650aa97c9602056f
+  uri: https://download.newrelic.com/dot_net_agent/previous_releases/9.6.1/newrelic-agent-win-x64-9.6.1.0.zip
+  sha256: 4d1053241c2f4849199750d598a473db81687f0c6357582a4da76c2e5ded82f5
   cf_stacks:
   - windows2012R2
   - windows2016

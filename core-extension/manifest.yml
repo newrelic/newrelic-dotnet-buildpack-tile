@@ -6,8 +6,8 @@ dependencies:
 - name: newrelic
   version: latest
   # version: 9.1.1.0
-  uri: https://download.newrelic.com/dot_net_agent/previous_releases/9.1.1/newrelic-netcore20-agent_9.1.1.0_amd64.tar.gz
-  sha256: 9d65fb744a9a30917d37bc0cece508d805f0052153752c7d653e4b7d9d1efb3c
+  uri: https://download.newrelic.com/dot_net_agent/previous_releases/9.6.1/newrelic-netcore20-agent_9.6.1.0_amd64.tar.gz
+  sha256: 2abdb8ae794660ce360a0ae13c6d32a224e67e2f8bded8283e9b41f2f808be77
   cf_stacks:
   - cflinuxfs2
   - cflinuxfs3
