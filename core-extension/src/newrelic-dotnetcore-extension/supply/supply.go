@@ -225,6 +225,7 @@ func (s *Supplier) Run() error {
 		} else {
 			nrSha256Sum = "" // ignore sha256 sum if not set by env var
 		}
+		updateAgentFolderForNewerVersions(s, nrDownloadURL, "")
 
 	} else if cachedBuildpack { // this file is cached by the buildpack
 		s.Log.Info("Using cached dependencies...")
@@ -236,6 +237,7 @@ func (s *Supplier) Run() error {
 		if err := libbuildpack.CopyFile(source, nrDownloadLocalFilename); err != nil {
 			return err
 		}
+		updateAgentFolderForNewerVersions(s, source, "")
 
 		needToDownloadNrAgentFile = false
 
@@ -250,14 +252,13 @@ func (s *Supplier) Run() error {
 				vc := len(v)
 				v1, _ := strconv.Atoi(v[0])
 				v2, _ := strconv.Atoi(v[1])
-				v3, _ := strconv.Atoi(v[2])
 
-				if v1 == 10 && v2 <= 9 && v3 <= 1 {
+				if v1 >= 10 {
 					nrAgentDownloadUrl = "http://download.newrelic.com/dot_net_agent/previous_releases/10.0.0/newrelic-dotnet-agent_10.0.0_amd64.tar.gz"
 					latestNrDownloadSha256Url = "http://download.newrelic.com/dot_net_agent/previous_releases/10.0.0/SHA256/newrelic-dotnet-agent_10.0.0_amd64.tar.gz.sha256"
 					nrVersionPattern = "((\\d{1,3}\\.){2}\\d{1,3})"
 
-					newrelicAgentFolder = "/netcore/newrelic-dotnet-agent"
+					updateAgentFolderForNewerVersions(s, nrAgentDownloadUrl, "")
 
 					// Handle previous versions
 				} else if v1 < 8 || (v1 == 8 && (v2 <= 25 || v2 == 27 || v2 == 28)) {
@@ -273,6 +274,8 @@ func (s *Supplier) Run() error {
 			} else {
 				s.Log.Info("Obtaining latest agent version ")
 				nrAgentVersion, err = getLatestAgentVersion(s)
+				updateAgentFolderForNewerVersions(s, nrAgentDownloadUrl, "")
+
 				if err != nil {
 					s.Log.Error("Unable to obtain latest agent version from the metadata bucket", err)
 					return err
@@ -350,6 +353,41 @@ func (s *Supplier) Run() error {
 
 	s.Log.Info("Installing New Relic Agent Completed.")
 	return nil
+}
+
+func updateAgentFolderForNewerVersions(s *Supplier, url string, agentVersion string) {
+
+	if len(url) > 1 {
+		nrVersionPatternMatcher, err := regexp.Compile("((\\d{1,3}\\.){2}\\d{1,3})")
+		if err != nil {
+			s.Log.Error("failed to build rexexp pattern matcher")
+		}
+		result := nrVersionPatternMatcher.FindStringSubmatch(url)
+		if len(result) <= 0 {
+			s.Log.Error("Error: no version match found in url")
+		} else {
+			uriVersion := result[1] // version pattern found in the url
+
+			v := strings.Split(string(uriVersion), ".")
+			v1, _ := strconv.Atoi(v[0])
+
+			if v1 >= 10 {
+				newrelicAgentFolder = "newrelic-dotnet-agent"
+				s.Log.Debug("Updated agent folder to : " + newrelicAgentFolder)
+			}
+		}
+
+	} else if len(agentVersion) > 1 {
+
+		v := strings.Split(string(agentVersion), ".")
+		v1, _ := strconv.Atoi(v[0])
+
+		if v1 >= 10 {
+			newrelicAgentFolder = "newrelic-dotnet-agent"
+			s.Log.Debug("Updated agent folder to : " + newrelicAgentFolder)
+		}
+	}
+
 }
 
 func detectNewRelicService(s *Supplier) bool {
