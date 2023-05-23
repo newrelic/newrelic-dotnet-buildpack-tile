@@ -225,7 +225,7 @@ func (s *Supplier) Run() error {
 		} else {
 			nrSha256Sum = "" // ignore sha256 sum if not set by env var
 		}
-		updateAgentFolderForNewerVersions(s, nrDownloadURL, "")
+		updateFolderForNewerAgentVersions(s, nrDownloadURL, "")
 
 	} else if cachedBuildpack { // this file is cached by the buildpack
 		s.Log.Info("Using cached dependencies...")
@@ -237,7 +237,7 @@ func (s *Supplier) Run() error {
 		if err := libbuildpack.CopyFile(source, nrDownloadLocalFilename); err != nil {
 			return err
 		}
-		updateAgentFolderForNewerVersions(s, source, "")
+		updateFolderForNewerAgentVersions(s, source, "")
 
 		needToDownloadNrAgentFile = false
 
@@ -258,7 +258,7 @@ func (s *Supplier) Run() error {
 					latestNrDownloadSha256Url = "http://download.newrelic.com/dot_net_agent/previous_releases/10.0.0/SHA256/newrelic-dotnet-agent_10.0.0_amd64.tar.gz.sha256"
 					nrVersionPattern = "((\\d{1,3}\\.){2}\\d{1,3})"
 
-					updateAgentFolderForNewerVersions(s, nrAgentDownloadUrl, "")
+					updateFolderForNewerAgentVersions(s, nrAgentDownloadUrl, "")
 
 					// Handle previous versions
 				} else if v1 < 8 || (v1 == 8 && (v2 <= 25 || v2 == 27 || v2 == 28)) {
@@ -274,7 +274,7 @@ func (s *Supplier) Run() error {
 			} else {
 				s.Log.Info("Obtaining latest agent version ")
 				nrAgentVersion, err = getLatestAgentVersion(s)
-				updateAgentFolderForNewerVersions(s, nrAgentDownloadUrl, "")
+				updateFolderForNewerAgentVersions(s, nrAgentDownloadUrl, "")
 
 				if err != nil {
 					s.Log.Error("Unable to obtain latest agent version from the metadata bucket", err)
@@ -355,7 +355,7 @@ func (s *Supplier) Run() error {
 	return nil
 }
 
-func updateAgentFolderForNewerVersions(s *Supplier, url string, agentVersion string) {
+func updateFolderForNewerAgentVersions(s *Supplier, url string, agentVersion string) {
 
 	if len(url) > 1 {
 		nrVersionPatternMatcher, err := regexp.Compile("((\\d{1,3}\\.){2}\\d{1,3})")
