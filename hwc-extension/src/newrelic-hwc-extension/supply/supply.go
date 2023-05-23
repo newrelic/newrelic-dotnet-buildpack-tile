@@ -86,6 +86,8 @@ var latestNrDownloadSha256Url = "http://download.newrelic.com/dot_net_agent/prev
 
 var nrVersionPattern = "((\\d{1,3}\\.){2}\\d{1,3})" // regexp pattern to find agent version from urls
 var newrelicAgentFolder = "newrelic"
+var nrAgentPath = ""
+var updateAgentPath = false
 
 const newrelicProfilerSharedLib = "NewRelic.Profiler.dll"
 
@@ -151,7 +153,7 @@ func (s *Supplier) Run() error {
 	nrDownloadLocalFilename := filepath.Join(tmpDir, "NewRelic.Agent.Installer.zip")
 
 	// nrAgentPath := filepath.Join(s.Stager.DepDir(), newrelicAgentFolder)
-	nrAgentPath := filepath.Join(s.Stager.BuildDir(), newrelicAgentFolder)
+	nrAgentPath = filepath.Join(s.Stager.BuildDir(), newrelicAgentFolder)
 	s.Log.Debug("New Relic Agent Path: " + nrAgentPath)
 
 	nrDownloadURL := nrAgentDownloadUrl
@@ -216,6 +218,8 @@ func (s *Supplier) Run() error {
 			nrSha256Sum = "" // ignore sha256 sum if not set by env var
 		}
 
+		checkIfVersionRequiresPathChange(s, nrDownloadURL, "")
+
 	} else if cachedBuildpack { // this file is cached by the buildpack
 
 		s.Log.Info("Using cached dependencies...")
@@ -227,6 +231,7 @@ func (s *Supplier) Run() error {
 		if err := libbuildpack.CopyFile(source, nrDownloadLocalFilename); err != nil {
 			return err
 		}
+		checkIfVersionRequiresPathChange(s, source, "")
 
 		needToDownloadNrAgentFile = false
 
@@ -241,15 +246,14 @@ func (s *Supplier) Run() error {
 				vc := len(v)
 				v1, _ := strconv.Atoi(v[0])
 				v2, _ := strconv.Atoi(v[1])
-				v3, _ := strconv.Atoi(v[2])
 
 				// Handle new versions
-				if v1 == 10 && v2 <= 9 && v3 <= 1 {
-					nrAgentDownloadUrl = "http://download.newrelic.com/dot_net_agent/previous_releases/10.7.0/NewRelicDotNetAgent_10.7.0_x64.zip"
-					latestNrDownloadSha256Url = "http://download.newrelic.com/dot_net_agent/previous_releases/10.7.0/SHA256/NewRelicDotNetAgent_10.7.0_x64.zip.sha256"
+				if v1 >= 10 {
+					nrAgentDownloadUrl = "https://download.newrelic.com/dot_net_agent/previous_releases/10.7.0/NewRelicDotNetAgent_10.7.0_x64.zip"
+					latestNrDownloadSha256Url = "https://download.newrelic.com/dot_net_agent/previous_releases/10.7.0/SHA256/NewRelicDotNetAgent_10.7.0_x64.zip.sha256"
 					nrVersionPattern = "((\\d{1,3}\\.){2}\\d{1,3})"
 
-					newrelicAgentFolder = "/netframework/newrelic"
+					updateAgentPath = true
 
 					// Handle previous versions
 				} else if v1 < 8 || (v1 == 8 && (v2 <= 25 || v2 == 27 || v2 == 28)) {
@@ -266,6 +270,8 @@ func (s *Supplier) Run() error {
 			} else {
 				s.Log.Info("Obtaining latest agent version ")
 				nrAgentVersion, err = getLatestAgentVersion(s)
+				updateAgentPath = true
+
 				if err != nil {
 					s.Log.Error("Unable to obtain latest agent version from the metadata bucket", err)
 					return err
@@ -328,6 +334,15 @@ func (s *Supplier) Run() error {
 		s.Log.Error("Error Extracting NewRelic .Net Framework Agent", err)
 		return err
 	}
+
+	if updateAgentPath {
+
+		err := copyFiles(s, filepath.Join(nrAgentPath, "netframework"), nrAgentPath)
+		if err != nil {
+			s.Log.Error("Error restructuring Agent files", err)
+		}
+	}
+
 	// End: extracting AgentFile #################################################################################
 
 	// decide which newrelic.config file to use (appdir, buildpackdir, agentdir)
@@ -357,6 +372,67 @@ func (s *Supplier) Run() error {
 
 	s.Log.Info("Installing New Relic Agent Completed.")
 	return nil
+}
+
+func copyFiles(s *Supplier, sourceDir, destinationDir string) error {
+	err := filepath.Walk(sourceDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		// Construct the destination file path
+		destPath := filepath.Join(destinationDir, path[len(sourceDir):])
+
+		if info.IsDir() {
+			// Create the destination directory
+			err := os.MkdirAll(destPath, os.ModePerm)
+			if err != nil {
+				return err
+			}
+		} else {
+			// Copy the file to the destination directory
+			err := libbuildpack.CopyFile(path, destPath)
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+	s.Log.Debug("Agent path contents after copying files ...")
+
+	return err
+}
+
+func checkIfVersionRequiresPathChange(s *Supplier, url string, agentVersion string) {
+	if len(url) > 1 {
+		nrVersionPatternMatcher, err := regexp.Compile("((\\d{1,3}\\.){2}\\d{1,3})")
+		if err != nil {
+			s.Log.Error("failed to build rexexp pattern matcher")
+		}
+		result := nrVersionPatternMatcher.FindStringSubmatch(url)
+		if len(result) <= 0 {
+			s.Log.Error("Error: no version match found in url")
+		} else {
+			uriVersion := result[1] // version pattern found in the url
+
+			v := strings.Split(string(uriVersion), ".")
+			v1, _ := strconv.Atoi(v[0])
+
+			if v1 >= 10 {
+				updateAgentPath = true
+			}
+		}
+
+	} else if len(agentVersion) > 1 {
+
+		v := strings.Split(string(agentVersion), ".")
+		v1, _ := strconv.Atoi(v[0])
+
+		if v1 >= 10 {
+			updateAgentPath = true
+		}
+	}
 }
 
 func detectNewRelicService(s *Supplier) bool {
