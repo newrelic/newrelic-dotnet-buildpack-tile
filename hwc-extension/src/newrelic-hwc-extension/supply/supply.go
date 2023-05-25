@@ -1,28 +1,27 @@
 package supply
 
 import (
+	"encoding/xml"
 	// "crypto/md5"
 	"fmt"
-	"encoding/xml"
 	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strings"
 	"strconv"
+	"strings"
 
 	"bytes"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"regexp"
 	"time"
-	"errors"
-	"crypto/sha256"
-	"encoding/hex"
 
 	"github.com/cloudfoundry/libbuildpack"
 )
-
 
 type Stager interface {
 	//TODO: See more options at https://github.com/cloudfoundry/libbuildpack/blob/master/stager.go
@@ -78,17 +77,18 @@ type Supplier struct {
 	*/
 }
 
-
-
 // for latest_release only - get latest version of the agent
-const bucketXMLUrl              = "https://nr-downloads-main.s3.amazonaws.com/?delimiter=/&prefix=dot_net_agent/latest_release/"
+const bucketXMLUrl = "https://nr-downloads-main.s3.amazonaws.com/?delimiter=/&prefix=dot_net_agent/latest_release/"
 
 // previous_releases contains all releases including latest
-var nrAgentDownloadUrl        = "http://download.newrelic.com/dot_net_agent/previous_releases/9.9.9/newrelic-agent-win-x64-9.9.9.0.zip"
-var latestNrDownloadSha256Url = "http://download.newrelic.com/dot_net_agent/previous_releases/9.9.9/SHA256/newrelic-agent-win-x64-9.9.9.0.zip.sha256"
+var nrAgentDownloadUrl = "http://download.newrelic.com/dot_net_agent/previous_releases/9.9.9/NewRelicDotNetAgent_9.9.9_x64.zip"
+var latestNrDownloadSha256Url = "http://download.newrelic.com/dot_net_agent/previous_releases/9.9.9/SHA256/NewRelicDotNetAgent_9.9.9_x64.zip.sha256"
 
-var nrVersionPattern          = "((\\d{1,3}\\.){2}\\d{1,3})" // regexp pattern to find agent version from urls
-const newrelicAgentFolder       = "newrelic"
+var nrVersionPattern = "((\\d{1,3}\\.){2}\\d{1,3})" // regexp pattern to find agent version from urls
+var newrelicAgentFolder = "newrelic"
+var nrAgentPath = ""
+var updateAgentPath = false
+
 const newrelicProfilerSharedLib = "NewRelic.Profiler.dll"
 
 type bucketResultXMLNode struct {
@@ -114,8 +114,6 @@ var envVars = make(map[string]interface{}, 0)
 //		- there is a SERVICE in VCAP_SERVICES with the name "newrelic"
 //		- for cached buildpack: nrDownloadFile from manifest is set to file name (non-blank)
 //	then execute Run()
-
-
 
 func (s *Supplier) Run() error {
 	s.Log.BeginStep("Supplying Newrelic HWC Extension")
@@ -155,9 +153,8 @@ func (s *Supplier) Run() error {
 	nrDownloadLocalFilename := filepath.Join(tmpDir, "NewRelic.Agent.Installer.zip")
 
 	// nrAgentPath := filepath.Join(s.Stager.DepDir(), newrelicAgentFolder)
-	nrAgentPath := filepath.Join(s.Stager.BuildDir(), newrelicAgentFolder)
+	nrAgentPath = filepath.Join(s.Stager.BuildDir(), newrelicAgentFolder)
 	s.Log.Debug("New Relic Agent Path: " + nrAgentPath)
-
 
 	nrDownloadURL := nrAgentDownloadUrl
 	nrDownloadFile := ""
@@ -169,9 +166,9 @@ func (s *Supplier) Run() error {
 	nrav, isAgenVersionEnvSet := os.LookupEnv("NEW_RELIC_AGENT_VERSION")
 	downloadURL, isAgentUrlEnvSet := os.LookupEnv("NEW_RELIC_DOWNLOAD_URL")
 	cachedBuildpack := false
-	if (isAgenVersionEnvSet && isAgentUrlEnvSet) {
-		 s.Log.Warning("\nboth NEW_RELIC_AGENT_VERSION and NEW_RELIC_DOWNLOAD_URL are specified. Ignoring NEW_RELIC_AGENT_VERSION and using NEW_RELIC_DOWNLOAD_URL")
-		 nrav = ""
+	if isAgenVersionEnvSet && isAgentUrlEnvSet {
+		s.Log.Warning("\nboth NEW_RELIC_AGENT_VERSION and NEW_RELIC_DOWNLOAD_URL are specified. Ignoring NEW_RELIC_AGENT_VERSION and using NEW_RELIC_DOWNLOAD_URL")
+		nrav = ""
 	}
 	//////////////////////////////////////////////////////////////////////
 	for _, entry := range s.Manifest.(*libbuildpack.Manifest).ManifestEntries {
@@ -183,8 +180,8 @@ func (s *Supplier) Run() error {
 			if nrDownloadFile != "" {
 				cachedBuildpack = true
 			}
-			break;
-			break;
+			break
+			break
 		}
 	}
 
@@ -199,7 +196,6 @@ func (s *Supplier) Run() error {
 	}
 	//////////////////////////////////////////////////////////////////////
 
-
 	//Begin: Download and Install
 	/*
 		// this approach is dependent on dependencies from manifest.yml file
@@ -209,7 +205,6 @@ func (s *Supplier) Run() error {
 		//	3 - if dependency is from buildoack's manifest, use Pivotal's standard InstallDependency()
 		// 		version "latest" from manifest dependencies (figures out the latest and composes the URL)
 	*/
-
 
 	// get agent version
 	needToDownloadNrAgentFile := true
@@ -223,6 +218,8 @@ func (s *Supplier) Run() error {
 			nrSha256Sum = "" // ignore sha256 sum if not set by env var
 		}
 
+		checkIfVersionRequiresPathChange(s, nrDownloadURL, "")
+
 	} else if cachedBuildpack { // this file is cached by the buildpack
 
 		s.Log.Info("Using cached dependencies...")
@@ -234,32 +231,47 @@ func (s *Supplier) Run() error {
 		if err := libbuildpack.CopyFile(source, nrDownloadLocalFilename); err != nil {
 			return err
 		}
+		checkIfVersionRequiresPathChange(s, source, "")
 
 		needToDownloadNrAgentFile = false
 
 	} else {
 
-		if (nrDownloadURL == "" || isAgenVersionEnvSet || in_array(strings.ToLower(nrVersion), []string{"", "0.0.0", "0.0.0.0", "latest", "current"})) {
+		if nrDownloadURL == "" || isAgenVersionEnvSet || in_array(strings.ToLower(nrVersion), []string{"", "0.0.0", "0.0.0.0", "latest", "current"}) {
 			nrAgentVersion := nrVersion
 			if isAgenVersionEnvSet {
 				s.Log.Info("Obtaining requested agent version ")
 
-			  v := strings.Split(string(nrAgentVersion), ".")
-			  vc := len(v)
-			  v1, _ := strconv.Atoi(v[0])
-			  v2, _ := strconv.Atoi(v[1])
+				v := strings.Split(string(nrAgentVersion), ".")
+				vc := len(v)
+				v1, _ := strconv.Atoi(v[0])
+				v2, _ := strconv.Atoi(v[1])
 
-			  if v1 < 8 || (v1 == 8 && (v2 <= 25 || v2 == 27 || v2 == 28)) {
-			  	// pre-opensource versioning
-					nrAgentDownloadUrl        = "http://download.newrelic.com/dot_net_agent/previous_releases/9.9.9.9/newrelic-agent-win-x64-9.9.9.9.zip"
+				// Handle new versions
+				if v1 >= 10 {
+					nrAgentDownloadUrl = "https://download.newrelic.com/dot_net_agent/previous_releases/10.7.0/NewRelicDotNetAgent_10.7.0_x64.zip"
+					latestNrDownloadSha256Url = "https://download.newrelic.com/dot_net_agent/previous_releases/10.7.0/SHA256/NewRelicDotNetAgent_10.7.0_x64.zip.sha256"
+					nrVersionPattern = "((\\d{1,3}\\.){2}\\d{1,3})"
+
+					updateAgentPath = true
+
+					// Handle previous versions
+				} else if v1 < 8 || (v1 == 8 && (v2 <= 25 || v2 == 27 || v2 == 28)) {
+					// pre-opensource versioning
+					nrAgentDownloadUrl = "http://download.newrelic.com/dot_net_agent/previous_releases/9.9.9.9/newrelic-agent-win-x64-9.9.9.9.zip"
 					latestNrDownloadSha256Url = "http://download.newrelic.com/dot_net_agent/previous_releases/9.9.9.9/SHA256/newrelic-agent-win-x64-9.9.9.9.zip.sha256"
-					nrVersionPattern          = "((\\d{1,3}\\.){3}\\d{1,3})"
-			  } else if vc == 4 {
-			  	nrAgentVersion = nrAgentVersion[0:strings.LastIndex(nrAgentVersion, ".")]
-			  }
+					nrVersionPattern = "((\\d{1,3}\\.){3}\\d{1,3})"
+
+					// Handle old versions
+				} else if vc == 4 {
+					nrAgentVersion = nrAgentVersion[0:strings.LastIndex(nrAgentVersion, ".")]
+
+				}
 			} else {
 				s.Log.Info("Obtaining latest agent version ")
 				nrAgentVersion, err = getLatestAgentVersion(s)
+				updateAgentPath = true
+
 				if err != nil {
 					s.Log.Error("Unable to obtain latest agent version from the metadata bucket", err)
 					return err
@@ -277,7 +289,7 @@ func (s *Supplier) Run() error {
 			nrDownloadURL = updatedUrl
 
 			// if agent is being downloaded read sha256 sum of the agent from NR download site
-			
+
 			latestNrAgentSha256Sum, err := getLatestNrAgentSha256Sum(s, tmpDir, nrAgentVersion)
 			if err != nil {
 				s.Log.Error("Can't get SHA256 checksum for latest New Relic Agent download", err)
@@ -314,7 +326,6 @@ func (s *Supplier) Run() error {
 	// }
 	// End: downloading AgentFile ################################################################################
 
-
 	// Start: extracting AgentFile ###############################################################################
 	// when dotnet framework agent is extracted, it doesn't create it's folder.
 	// need to set agent dir to s.Stager.BuildDir()/newrelic or s.Stager.DepDir()/newrelic
@@ -323,10 +334,16 @@ func (s *Supplier) Run() error {
 		s.Log.Error("Error Extracting NewRelic .Net Framework Agent", err)
 		return err
 	}
+
+	if updateAgentPath {
+
+		err := copyFiles(s, filepath.Join(nrAgentPath, "netframework"), nrAgentPath)
+		if err != nil {
+			s.Log.Error("Error restructuring Agent files", err)
+		}
+	}
+
 	// End: extracting AgentFile #################################################################################
-
-
-
 
 	// decide which newrelic.config file to use (appdir, buildpackdir, agentdir)
 	if err := getNewRelicConfigFile(s, nrAgentPath, buildpackDir); err != nil {
@@ -357,8 +374,66 @@ func (s *Supplier) Run() error {
 	return nil
 }
 
+func copyFiles(s *Supplier, sourceDir, destinationDir string) error {
+	err := filepath.Walk(sourceDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
 
+		// Construct the destination file path
+		destPath := filepath.Join(destinationDir, path[len(sourceDir):])
 
+		if info.IsDir() {
+			// Create the destination directory
+			err := os.MkdirAll(destPath, os.ModePerm)
+			if err != nil {
+				return err
+			}
+		} else {
+			// Copy the file to the destination directory
+			err := libbuildpack.CopyFile(path, destPath)
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+	s.Log.Debug("Agent path contents after copying files ...")
+
+	return err
+}
+
+func checkIfVersionRequiresPathChange(s *Supplier, url string, agentVersion string) {
+	if len(url) > 1 {
+		nrVersionPatternMatcher, err := regexp.Compile("((\\d{1,3}\\.){2}\\d{1,3})")
+		if err != nil {
+			s.Log.Error("failed to build rexexp pattern matcher")
+		}
+		result := nrVersionPatternMatcher.FindStringSubmatch(url)
+		if len(result) <= 0 {
+			s.Log.Error("Error: no version match found in url")
+		} else {
+			uriVersion := result[1] // version pattern found in the url
+
+			v := strings.Split(string(uriVersion), ".")
+			v1, _ := strconv.Atoi(v[0])
+
+			if v1 >= 10 {
+				updateAgentPath = true
+			}
+		}
+
+	} else if len(agentVersion) > 1 {
+
+		v := strings.Split(string(agentVersion), ".")
+		v1, _ := strconv.Atoi(v[0])
+
+		if v1 >= 10 {
+			updateAgentPath = true
+		}
+	}
+}
 
 func detectNewRelicService(s *Supplier) bool {
 	s.Log.Info("Detecting New Relic...")
@@ -375,19 +450,19 @@ func detectNewRelicService(s *Supplier) bool {
 		if vCapServicesEnvValue != "" {
 			var vcapServices map[string]interface{}
 			if err := json.Unmarshal([]byte(vCapServicesEnvValue), &vcapServices); err != nil {
-		    	s.Log.Error("", err)
+				s.Log.Error("", err)
 			} else {
-		    	// check for a service from newrelic service broker (or tile)
+				// check for a service from newrelic service broker (or tile)
 				if _, exists := vcapServices["newrelic"].([]interface{}); exists {
 					bindNrAgent = true
 				} else {
-			    	// check user-provided-services
+					// check user-provided-services
 					userProvidedServicesElement, _ := vcapServices["user-provided"].([]interface{})
-			        for _, ups := range userProvidedServicesElement {
-			        	s, _ := ups.(map[string]interface{})
-			        	if exists := strings.Contains(strings.ToLower(s["name"].(string)), "newrelic"); exists {
-			        		bindNrAgent = true
-			        		break; 
+					for _, ups := range userProvidedServicesElement {
+						s, _ := ups.(map[string]interface{})
+						if exists := strings.Contains(strings.ToLower(s["name"].(string)), "newrelic"); exists {
+							bindNrAgent = true
+							break
 						}
 					}
 				}
@@ -409,12 +484,12 @@ func getBuildpackDir(s *Supplier) (string, error) {
 }
 
 func in_array(searchStr string, array []string) bool {
-    for _, v := range array {
-        if  v == searchStr { // item found in array of strings
-            return true
-        }   
-    }
-    return false
+	for _, v := range array {
+		if v == searchStr { // item found in array of strings
+			return true
+		}
+	}
+	return false
 }
 
 func substituteUrlVersion(s *Supplier, url string, nrVersion string) (string, error) {
@@ -425,7 +500,7 @@ func substituteUrlVersion(s *Supplier, url string, nrVersion string) (string, er
 		return "", err
 	}
 	result := nrVersionPatternMatcher.FindStringSubmatch(url)
-	if (len(result) <= 0) {
+	if len(result) <= 0 {
 		return "", errors.New("Error: no version match found in url")
 	}
 	uriVersion := result[1] // version pattern found in the url
@@ -554,7 +629,6 @@ func getNewRelicXmlInstrumentationFile(s *Supplier, nrAgentPath string) error {
 		newrelicXmlInstrumentationExists = false
 	}
 
-
 	if newrelicXmlInstrumentationExists {
 		// newrelic XML instrumentation file found in app folder
 		s.Log.Info("Using custom instrumentation file \"newrelic_instrumentation.xml\" provided in the app folder")
@@ -563,7 +637,7 @@ func getNewRelicXmlInstrumentationFile(s *Supplier, nrAgentPath string) error {
 			s.Log.Error("Error Copying newrelic_instrumentation.xml provided within the app folder", err)
 			return err
 		}
-	} 
+	}
 	return nil
 }
 
@@ -630,10 +704,10 @@ func buildProfileD(s *Supplier, nrAgentPath string) error {
 
 	// see if the app is bound to new relic svc broker instance
 	vCapServicesEnvValue := os.Getenv("VCAP_SERVICES")
-	if (!in_array(vCapServicesEnvValue, []string{"", "{}"})) {
+	if !in_array(vCapServicesEnvValue, []string{"", "{}"}) {
 		var vcapServices map[string]interface{}
 		if err := json.Unmarshal([]byte(vCapServicesEnvValue), &vcapServices); err != nil {
-	    	s.Log.Error("", err)
+			s.Log.Error("", err)
 		} else {
 			envVars["NEW_RELIC_LICENSE_KEY"] = parseNewRelicService(s, vcapServices) // from svc-broker instance in VCAP_SERVICES
 		}
@@ -642,22 +716,22 @@ func buildProfileD(s *Supplier, nrAgentPath string) error {
 
 	// NEW_RELIC_APP_NAME env var always overwrites other app names
 	newrelicAppName := os.Getenv("NEW_RELIC_APP_NAME")
-	if (newrelicAppName > "") {
+	if newrelicAppName > "" {
 		envVars["NEW_RELIC_APP_NAME"] = newrelicAppName
 	}
 	// NEW_RELIC_LICENSE_KEY env var always overwrites other license keys
 	newrelicLicenseKey := os.Getenv("NEW_RELIC_LICENSE_KEY")
-	if (newrelicLicenseKey > "") {
+	if newrelicLicenseKey > "" {
 		envVars["NEW_RELIC_LICENSE_KEY"] = newrelicLicenseKey
 	}
 
 	licenseKey, ok := envVars["NEW_RELIC_LICENSE_KEY"].(string)
-	if (!ok || licenseKey == "") {
+	if !ok || licenseKey == "" {
 		s.Log.Warning("Please make sure New Relic License Key is defined by \"setting env var\", using \"user-provided-service\", \"service broker service instance\", or \"newrelic.config file\"")
 	}
 
 	for key, val := range envVars {
-		if (val.(string) > "") {
+		if val.(string) > "" {
 			scriptContentBuffer.WriteString(fmt.Sprintf("set %s=%s\n", key, val))
 		}
 	}
@@ -693,7 +767,6 @@ func setNewRelicProfilerProperties(s *Supplier, nrAgentPath string) bytes.Buffer
 	profilerSettingsBuffer.WriteString(strings.Join([]string{"set COR_PROFILER_PATH=", filepath.Join(nrAgentPath, newrelicProfilerSharedLib)}, ""))
 	profilerSettingsBuffer.WriteString("\n")
 
-
 	profilerSettingsBuffer.WriteString("set COR_ENABLE_PROFILING=1")
 	profilerSettingsBuffer.WriteString("\n")
 	profilerSettingsBuffer.WriteString("set COR_PROFILER={71DA0A04-7777-4EC6-9643-7D28B46A8A41}")
@@ -708,7 +781,7 @@ func parseVcapApplicationEnv(s *Supplier) string {
 	s.Log.Debug("Parsing VcapApplication env")
 	// NEW_RELIC_APP_NAME env var always overwrites other app names
 	newrelicAppName := os.Getenv("NEW_RELIC_APP_NAME")
-	if (newrelicAppName == "") {
+	if newrelicAppName == "" {
 		vCapApplicationEnvValue := os.Getenv("VCAP_APPLICATION")
 		var vcapApplication map[string]interface{}
 		if err := json.Unmarshal([]byte(vCapApplicationEnvValue), &vcapApplication); err != nil {
@@ -729,19 +802,19 @@ func parseNewRelicService(s *Supplier, vcapServices map[string]interface{}) stri
 	// check for a service from newrelic service broker (or tile)
 	newrelicElement, ok := vcapServices["newrelic"].([]interface{})
 	if ok {
-  		if len(newrelicElement) > 0 {
-    		newrelicMap, ok := newrelicElement[0].(map[string]interface{})
-    		if ok {
-      			credMap, ok := newrelicMap["credentials"].(map[string]interface{})
-      			if ok {
-        			newrelicLicense, ok := credMap["licenseKey"].(string)
-        			if ok {
-          				s.Log.Debug("VCAP_SERVICES.newrelic.credentials.licenseKey=" + "**Redacted**")
-          				newrelicLicenseKey = newrelicLicense
-        			}
-      			}
-    		}
-  		}
+		if len(newrelicElement) > 0 {
+			newrelicMap, ok := newrelicElement[0].(map[string]interface{})
+			if ok {
+				credMap, ok := newrelicMap["credentials"].(map[string]interface{})
+				if ok {
+					newrelicLicense, ok := credMap["licenseKey"].(string)
+					if ok {
+						s.Log.Debug("VCAP_SERVICES.newrelic.credentials.licenseKey=" + "**Redacted**")
+						newrelicLicenseKey = newrelicLicense
+					}
+				}
+			}
+		}
 	}
 	return newrelicLicenseKey
 }
@@ -749,25 +822,25 @@ func parseNewRelicService(s *Supplier, vcapServices map[string]interface{}) stri
 func parseUserProvidedServices(s *Supplier, vcapServices map[string]interface{}) {
 	// check user-provided-services
 	userProvidesServicesElement, _ := vcapServices["user-provided"].([]interface{})
-  for _, ups := range userProvidesServicesElement {
-  	element, _ := ups.(map[string]interface{})
-  	if found := strings.Contains(strings.ToLower(element["name"].(string)), "newrelic"); found == true {
+	for _, ups := range userProvidesServicesElement {
+		element, _ := ups.(map[string]interface{})
+		if found := strings.Contains(strings.ToLower(element["name"].(string)), "newrelic"); found == true {
 			cmap, _ := element["credentials"].(map[string]interface{})
-    	for key, cred := range cmap {
-    		if (key == "" || cred.(string) == "") {
-    			continue
-    		}
-    		envVarName := key
-				if (in_array(strings.ToUpper(key), []string{"LICENSE_KEY", "LICENSEKEY"})) {
-    			envVarName = "NEW_RELIC_LICENSE_KEY"
+			for key, cred := range cmap {
+				if key == "" || cred.(string) == "" {
+					continue
+				}
+				envVarName := key
+				if in_array(strings.ToUpper(key), []string{"LICENSE_KEY", "LICENSEKEY"}) {
+					envVarName = "NEW_RELIC_LICENSE_KEY"
 					s.Log.Debug("VCAP_SERVICES." + element["name"].(string) + ".credentials." + key + "=" + "**redacted**")
-				} else if (in_array(strings.ToUpper(key), []string{"APP_NAME", "APPNAME"})) {
+				} else if in_array(strings.ToUpper(key), []string{"APP_NAME", "APPNAME"}) {
 					envVarName = "NEW_RELIC_APP_NAME"
 					s.Log.Debug("VCAP_SERVICES." + element["name"].(string) + ".credentials." + key + "=" + cred.(string))
-				} else if (in_array(strings.ToUpper(key), []string{"DISTRIBUTED_TRACING", "DISTRIBUTEDTRACING"})) {
+				} else if in_array(strings.ToUpper(key), []string{"DISTRIBUTED_TRACING", "DISTRIBUTEDTRACING"}) {
 					envVarName = "NEW_RELIC_DISTRIBUTED_TRACING_ENABLED"
 					s.Log.Debug("VCAP_SERVICES." + element["name"].(string) + ".credentials." + key + "=" + cred.(string))
-				} else if (strings.HasPrefix(strings.ToUpper(key), "NEW_RELIC_") || strings.HasPrefix(strings.ToUpper(key), "NEWRELIC_")) {
+				} else if strings.HasPrefix(strings.ToUpper(key), "NEW_RELIC_") || strings.HasPrefix(strings.ToUpper(key), "NEWRELIC_") {
 					envVarName = strings.ToUpper(key)
 				}
 				envVars[envVarName] = cred.(string) // save user-provided creds for adding to the app env
