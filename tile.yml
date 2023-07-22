@@ -1,10 +1,10 @@
 ---
 name: new-relic-dotnet-buildpack
-version: 1.1.10
+version: 1.1.11
 metadata_version: 2.0
 label: New Relic Dotnet Buildpack for Tanzu
 description: New Relic Dotnet Buildpack for Tanzu
-icon_file: resources/images/nr-black-256x256.png
+icon_file: resources/images/NR_logo_vert_300x300.png
 
 
 
@@ -62,7 +62,7 @@ packages:
   buildpack_order: 31
   type: buildpack
   label: New Relic Dotnet Core Extension Buildpack for ubuntu xenial
-  path: './core-extension/newrelic-dotnetcore-extension_buildpack-cflinuxfs3-v1.1.10.zip'
+  path: './core-extension/newrelic-dotnetcore-extension_buildpack-cflinuxfs4-v1.1.11.zip'
   pre_deploy: |
 
     function delete_nr_anystack_buildpacks() {
@@ -134,12 +134,12 @@ packages:
     delete_nr_anystack_buildpacks
 
     BUILDPACK_NAME="nr_dotnetcore_extension"
-    STACK=cflinuxfs3
+    STACK=cflinuxfs4
     if [ ${INSTALL_NR_DOTNETCORE_EXTENSION_XENIAL} == true ]
     then
       BUILDPACK_ORDER=<%= Shellwords.escape properties.nr_dotnetcore_extension_xenial.buildpack_order %>
       PKG_NAME=<%= Shellwords.escape properties.nr_dotnetcore_extension_xenial.name %>
-      BUILDPACK_FILE=${PACKAGE_PATH}/${PKG_NAME}/newrelic-dotnetcore-extension_buildpack-cflinuxfs3-v1.1.10.zip
+      BUILDPACK_FILE=${PACKAGE_PATH}/${PKG_NAME}/newrelic-dotnetcore-extension_buildpack-cflinuxfs4-v1.1.11.zip
 
       #----
       echo "PKG_NAME: ${PKG_NAME}"
@@ -158,7 +158,7 @@ packages:
 
   delete: |
     ### delete the buildpacks
-    cf delete-buildpack -f nr_dotnetcore_extension -s cflinuxfs3
+    cf delete-buildpack -f nr_dotnetcore_extension -s cflinuxfs4
     ### --------------------------------------------------
 
 
@@ -166,15 +166,15 @@ packages:
   buildpack_order: 32
   type: buildpack
   label: New Relic Dotnet Core Extension Buildpack for ubuntu xenial (Cached)
-  path: './core-extension/newrelic-dotnetcore-extension_buildpack-cached-cflinuxfs3-v1.1.10.zip'
+  path: './core-extension/newrelic-dotnetcore-extension_buildpack-cached-cflinuxfs4-v1.1.11.zip'
   deploy: |
     BUILDPACK_NAME="nr_dotnetcore_extension_cached"
-    STACK=cflinuxfs3
+    STACK=cflinuxfs4
     if [ ${INSTALL_NR_DOTNETCORE_EXTENSION_XENIAL_CACHED} == true ]
     then
       BUILDPACK_ORDER=<%= Shellwords.escape properties.nr_dotnetcore_extension_xenial_cached.buildpack_order %>
       PKG_NAME=<%= Shellwords.escape properties.nr_dotnetcore_extension_xenial_cached.name %>
-      BUILDPACK_FILE=${PACKAGE_PATH}/${PKG_NAME}/newrelic-dotnetcore-extension_buildpack-cached-cflinuxfs3-v1.1.10.zip
+      BUILDPACK_FILE=${PACKAGE_PATH}/${PKG_NAME}/newrelic-dotnetcore-extension_buildpack-cached-cflinuxfs4-v1.1.11.zip
 
       #----
       echo "PKG_NAME: ${PKG_NAME}"
@@ -193,7 +193,7 @@ packages:
 
   delete: |
     ### delete the buildpacks
-    cf delete-buildpack -f nr_dotnetcore_extension_cached -s cflinuxfs3
+    cf delete-buildpack -f nr_dotnetcore_extension_cached -s cflinuxfs4
     ### --------------------------------------------------
 
 
@@ -202,7 +202,7 @@ packages:
   buildpack_order: 33
   type: buildpack
   label: New Relic HWC Extension Buildpack for Windows 2019
-  path: './hwc-extension/newrelic-hwc-extension_buildpack-windows-v1.1.10.zip'
+  path: './hwc-extension/newrelic-hwc-extension_buildpack-windows-v1.1.11.zip'
   deploy: |
     BUILDPACK_NAME="nr_hwc_extension"
     STACK=windows
@@ -210,7 +210,7 @@ packages:
     then
       BUILDPACK_ORDER=<%= Shellwords.escape properties.nr_hwc_extension_windows.buildpack_order %>
       PKG_NAME=<%= Shellwords.escape properties.nr_hwc_extension_windows.name %>
-      BUILDPACK_FILE=${PACKAGE_PATH}/${PKG_NAME}/newrelic-hwc-extension_buildpack-windows-v1.1.10.zip
+      BUILDPACK_FILE=${PACKAGE_PATH}/${PKG_NAME}/newrelic-hwc-extension_buildpack-windows-v1.1.11.zip
 
       #----
       echo "PKG_NAME: ${PKG_NAME}"
@@ -237,7 +237,7 @@ packages:
   buildpack_order: 34
   type: buildpack
   label: New Relic HWC Extension Buildpack for Windows 2019 (Cached)
-  path: './hwc-extension/newrelic-hwc-extension_buildpack-cached-windows-v1.1.10.zip'
+  path: './hwc-extension/newrelic-hwc-extension_buildpack-cached-windows-v1.1.11.zip'
   deploy: |
     BUILDPACK_NAME="nr_hwc_extension_cached"
     STACK=windows
@@ -245,7 +245,7 @@ packages:
     then
       BUILDPACK_ORDER=<%= Shellwords.escape properties.nr_hwc_extension_windows_cached.buildpack_order %>
       PKG_NAME=<%= Shellwords.escape properties.nr_hwc_extension_windows_cached.name %>
-      BUILDPACK_FILE=${PACKAGE_PATH}/${PKG_NAME}/newrelic-hwc-extension_buildpack-cached-windows-v1.1.10.zip
+      BUILDPACK_FILE=${PACKAGE_PATH}/${PKG_NAME}/newrelic-hwc-extension_buildpack-cached-windows-v1.1.11.zip
 
       #----
       echo "PKG_NAME: ${PKG_NAME}"

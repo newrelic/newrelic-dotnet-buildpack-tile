@@ -10,6 +10,7 @@ dependencies:
   sha256: 0d527ed576fae29b2ba5f57e638ec3d2ed6b74352cc154b59beedd76cbeaa883
   cf_stacks:
   - cflinuxfs3
+  - cflinuxfs4
 
 include_files:
   - README.md
