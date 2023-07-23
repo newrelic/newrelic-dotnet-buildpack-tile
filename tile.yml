@@ -4,7 +4,7 @@ version: 1.1.11
 metadata_version: 2.0
 label: New Relic Dotnet Buildpack for Tanzu
 description: New Relic Dotnet Buildpack for Tanzu
-icon_file: resources/images/NR_logo_vert_300x300.png
+icon_file: resources/images/NR_logo_256x296.png
 
 
 
