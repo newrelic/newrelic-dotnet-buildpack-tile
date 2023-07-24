@@ -10,7 +10,7 @@ This document describes [New Relic Dotnet Extension Buildpack Tile for VMware Ta
 <br/>
 
 <p align="center">
-    <img src="images/nr-black-256x256.png" alt="New Relic Dotnet Extension Buildpack" height="150" width="150"/>
+    <img src="images/NR_logo_256x296.png" alt="New Relic Dotnet Extension Buildpack" height="150" width="150"/>
 </p>
 
 <br/>
@@ -54,23 +54,23 @@ The following table provides version and version-support information about New R
     <th>Details</th>
     <tr>
         <td>Tile version</td>
-        <td>1.1.5</td>
+        <td>1.1.11</td>
     </tr>
     <tr>
         <td>Release date</td>
-        <td>May 14, 2020</td>
+        <td>July 24, 2023</td>
     </tr>
     <tr>
         <td>Software component version</td>
-        <td>New Relic Dotnet Extension Buildpack v1.1.5 (General Access)</td>
+        <td>New Relic Dotnet Extension Buildpack v1.1.11 (General Access)</td>
     </tr>
     <tr>
         <td>Compatible Ops Manager version(s)</td>
-        <td>v2.6.x, v2.7.x, v2.8.x, and v2.9.x</td>
+        <td>v2.9.x, v2.10.x and v3.0.x</td>
     </tr>
     <tr>
         <td>Compatible Pivotal Application Service versions</td>
-        <td>v2.6.x, v2.7.x, v2.8.x, and v2.9.x</td>
+        <td>v2.10.x, v2.11.x, v2.12.x, v2.13.x, v3.0.x and v4.0.x</td>
     </tr>
     <tr>
         <td>IaaS support</td>
