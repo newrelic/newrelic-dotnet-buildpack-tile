@@ -58,7 +58,7 @@ The following table provides version and version-support information about New R
     </tr>
     <tr>
         <td>Release date</td>
-        <td>June 24, 2023</td>
+        <td>July 24, 2023</td>
     </tr>
     <tr>
         <td>Software component version</td>
