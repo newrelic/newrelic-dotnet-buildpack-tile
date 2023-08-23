@@ -34,7 +34,7 @@ Features included in this release:
 * hwc extension buildpack for support of multi-buildpack approach
 * added cached version of dotnet core buildpack
 * hwc extension supports <strong>Windows 2012 R2, and 2016</strong>
-* dotnet core extension supports <strong>ubuntu trusty and xenial</strong>
+* dotnet core extension supports <strong>ubuntu jammy</strong>
 * code improvements in hwc and dotnet core extension buildpacks
 * both hwc and dotnet core buildpacks support following ways to bind to new relic agent:
     * New Relic license environment variable

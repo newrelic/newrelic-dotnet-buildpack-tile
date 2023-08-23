@@ -27,10 +27,10 @@ Once you start monitoring your applications, you would also have the ability to 
 
 The tile installs one or more of the following 4 buildpacks depending on the tile configuration:
 
-1. New Relic Dotnet Core Extension Buildpack for Dotnet Core Applications (Ubuntu Trusty & xenial)
-1. New Relic Dotnet Core Extension Cached Buildpack for Dotnet Core Applications (Ubuntu Trusty & xenial) running in disconnected (isolated) PCF deployments
-1. New Relic HWC  Extension Cached Buildpack for Dotnet Framework Applications (Windows 2012 R2 & Windows 2016)
-1. New Relic HWC  Extension Buildpack for Dotnet Framework Applications (Windows 2012 R2 & Windows 2016) running in disconnected (isolated) PCF deployments
+1. New Relic Dotnet Core Extension Buildpack for Dotnet Core Applications (Ubuntu Jammy)
+1. New Relic Dotnet Core Extension Cached Buildpack for Dotnet Core Applications (Ubuntu Jammy) running in disconnected (isolated) PCF deployments
+1. New Relic HWC  Extension Cached Buildpack for Dotnet Framework Applications (Windows 2019)
+1. New Relic HWC  Extension Buildpack for Dotnet Framework Applications (Windows 2019) running in disconnected (isolated) PCF deployments
 
 The first 2 extension buildpacks are for Dotnet Core applications running on Ubuntu Trusty (14.04) and Ubuntu Xenial (16.04). The first extension is non-cached, and the second one is cached version of buildpack for Dotnet Core.
 
@@ -54,7 +54,7 @@ The following table provides version and version-support information about New R
     <th>Details</th>
     <tr>
         <td>Tile version</td>
-        <td>1.1.11</td>
+        <td>1.1.12</td>
     </tr>
     <tr>
         <td>Release date</td>
@@ -62,7 +62,7 @@ The following table provides version and version-support information about New R
     </tr>
     <tr>
         <td>Software component version</td>
-        <td>New Relic Dotnet Extension Buildpack v1.1.11 (General Access)</td>
+        <td>New Relic Dotnet Extension Buildpack v1.1.12 (General Access)</td>
     </tr>
     <tr>
         <td>Compatible Ops Manager version(s)</td>
