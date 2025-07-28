@@ -1,16 +1,18 @@
 ---
 language: newrelic-dotnetcore-extension
-default_versions:
-dependency_deprecation_dates:
+default_versions: [] # Assuming your Go code handles dynamic agent download and doesn't explicitly provide runtimes here
+dependency_deprecation_dates: [] # Or list any relevant dates if needed by the original project
 dependencies:
-- name: newrelic
-  version: latest
-  # version: 10.9.1
-  uri: https://download.newrelic.com/dot_net_agent/previous_releases/10.9.1/newrelic-dotnet-agent_10.9.1_amd64.tar.gz
-  sha256: 0d527ed576fae29b2ba5f57e638ec3d2ed6b74352cc154b59beedd76cbeaa883
-  cf_stacks:
-  - cflinuxfs3
-  - cflinuxfs4
+  # This section declares the New Relic agent as a dependency the buildpack provides.
+  # The actual download/injection is handled by your Go 'supply' code, but this declares it to CF.
+  - name: newrelic
+    version: latest
+    # version: 10.43.0 # You can uncomment and fix specific version/SHA if you want to pin it
+    uri: https://download.newrelic.com/dot_net_agent/previous_releases/10.43.0/newrelic-dotnet-agent_10.43.0_amd64.tar.gz
+    sha256: 0d527ed576fae29b2ba5f57e638ec3d2ed6b74352cc154b59beedd76cbeaa883
+    cf_stacks:
+      - cflinuxfs3
+      - cflinuxfs4
 
 include_files:
   - README.md
@@ -20,7 +22,6 @@ include_files:
   - bin/supply
   - bin/finalize
   - bin/release
-  - manifest.yml
-  - newrelic.config
-pre_package: scripts/build.sh
-
+  - manifest.yml   # This buildpack's own manifest.yml
+  - newrelic.config # The agent's config file
+pre_package: scripts/build.sh # This script would be your local packaging script

@@ -1,8 +1,35 @@
 #!/usr/bin/env bash
-# bin/detect <build-dir>
-#
-#
-# This script determines whether or not to apply the buildpack to an app
-# TODO: Write code here to exit 0 if the buildpack is compatible with the app and exit 1 otherwise
+# Detect script for New Relic HWC Extension Buildpack
 
-exit 1
+set -euxo pipefail
+
+BUILD_DIR=$1
+CACHE_DIR=$2
+DEPS_DIR=$3
+DEPS_IDX=$4
+
+# Get the absolute path to the directory containing this script (bin/)
+CURRENT_BIN_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+
+# Calculate the path to the BUILD PACK'S UNPACKED ROOT directory.
+BUILDPACK_UNPACKED_ROOT=$(dirname "$CURRENT_BIN_DIR")
+
+source "$BUILDPACK_UNPACKED_ROOT/scripts/install_go.sh" "$BUILDPACK_UNPACKED_ROOT"
+
+# Define the relative path to the actual Go project root within this unpacked buildpack.
+GO_PROJECT_SUBPATH="src/newrelic-hwc-extension" # <--- hwc-extension
+
+echo "-----> Running go build detect (verbose output below)"
+ls -ld "$BUILDPACK_UNPACKED_ROOT/$GO_PROJECT_SUBPATH" # Debugging: check path
+
+# Change directory to the Go module's root before building
+(
+  set -x
+  cd "$BUILDPACK_UNPACKED_ROOT/$GO_PROJECT_SUBPATH" || { echo "ERROR: Failed to cd into Go module source root. Path was: $BUILDPACK_UNPACKED_ROOT/$GO_PROJECT_SUBPATH"; exit 1; }
+  
+  # Now, execute go build from within the module root
+  "$GoInstallDir/go/bin/go" build -mod=vendor -ldflags="-s -w" -o /tmp/detect-binary.exe ./detect/cli 2>&1 # <--- .exe
+)
+
+# Execute the newly compiled Go binary, passing original args
+/tmp/detect-binary.exe "$BUILD_DIR" "$CACHE_DIR" "$DEPS_DIR" "$DEPS_IDX"

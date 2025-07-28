@@ -81,11 +81,11 @@ type Supplier struct {
 const bucketXMLUrl = "https://nr-downloads-main.s3.amazonaws.com/?delimiter=/&prefix=dot_net_agent/latest_release/"
 
 // previous_releases contains all releases including latest
-var nrAgentDownloadUrl = "http://download.newrelic.com/dot_net_agent/previous_releases/9.9.9/newrelic-dotnet-agent_9.9.9_amd64.tar.gz"
-var latestNrDownloadSha256Url = "http://download.newrelic.com/dot_net_agent/previous_releases/9.9.9/SHA256/newrelic-dotnet-agent_9.9.9_amd64.tar.gz.sha256"
+var nrAgentDownloadUrl = "https://download.newrelic.com/dot_net_agent/previous_releases/10.43.0/newrelic-dotnet-agent_10.43.0_amd64.tar.gz"
+var latestNrDownloadSha256Url = "http://download.newrelic.com/dot_net_agent/previous_releases/10.43.0/SHA256/newrelic-dotnet-agent_10.43.0_amd64.tar.gz.sha256"
 
 var nrVersionPattern = "((\\d{1,3}\\.){2}\\d{1,3})" // regexp pattern to find agent version from urls
-var newrelicAgentFolder = "newrelic-netcore20-agent"
+var newrelicAgentFolder = "newrelic-dotnet-agent"   // default agent folder name highre than 10
 
 const newrelicProfilerSharedLib = "libNewRelicProfiler.so"
 

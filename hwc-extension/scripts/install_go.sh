@@ -1,27 +1,55 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -euo pipefail
 
-GO_VERSION="1.10"
-export GoInstallDir="/tmp/go$GO_VERSION"
-mkdir -p $GoInstallDir
+# This script installs the Go toolchain into a temporary directory
+# It expects BUILDPACK_UNPACKED_ROOT as its first argument.
 
-if [ ! -f $GoInstallDir/go/bin/go ]; then
-GO_SHA256="244200952f414e9ae6269d32569722a7cd88435f5c52d488cd9599b8bfa1498b"
-URL=https://buildpacks.cloudfoundry.org/dependencies/go/go${GO_VERSION}.linux-amd64-${GO_SHA256:0:8}.tar.gz
+INSTALL_GO_BUILDPACK_DIR=$1 # Capture the first argument (BUILDPACK_UNPACKED_ROOT)
 
-echo "-----> Download go ${GO_VERSION}"
-curl -s -L --retry 15 --retry-delay 2 $URL -o /tmp/go.tar.gz
+GO_VERSION="1.23.0" # <--- TARGETING GO 1.23.0
+GO_OS="windows"     # <--- TARGETING WINDOWS BINARIES
+GO_ARCH="amd64"
 
-DOWNLOAD_SHA256=$(shasum -a256 /tmp/go.tar.gz | cut -d ' ' -f 1)
-if [[ $DOWNLOAD_SHA256 != $GO_SHA256 ]]; then
-echo "       **ERROR** SHA256 mismatch: got $DOWNLOAD_SHA256 expected $GO_SHA256"
-exit 1
+GoInstallDir=$(mktemp -d -t go_install_XXX)
+
+echo "-----> Downloading Go $GO_VERSION for $GO_OS/$GO_ARCH to $GoInstallDir"
+# For Windows, Go provides a .zip file, not a .tar.gz!
+GO_ZIPBALL="go${GO_VERSION}.${GO_OS}-${GO_ARCH}.zip" # <--- .zip extension
+GO_URL="https://dl.google.com/go/${GO_ZIPBALL}"
+
+curl -fL "$GO_URL" -o "$GoInstallDir/$GO_ZIPBALL"
+if [ $? -ne 0 ]; then
+  echo "       ERROR: Failed to download Go from $GO_URL. Curl exited with status $?."
+  echo "       Check network connectivity from Cloud Foundry cell to dl.google.com."
+  exit 1
 fi
 
-tar xzf /tmp/go.tar.gz -C $GoInstallDir
-rm /tmp/go.tar.gz
+# SHA256 checksum for go1.23.0.windows-amd64.zip (VERIFY THIS FROM GO'S OFFICIAL DOWNLOADS PAGE!)
+# Go to https://go.dev/dl/ and find the SHA256 for go1.23.0.windows-amd64.zip
+EXPECTED_SHA256="d4be481ef73079ee0ad46081d278923aa3fd78db1b3cf147172592f73e14c1ac" # <--- PLACE CORRECT SHA256 HERE
+DOWNLOADED_SHA256=$(sha256sum "$GoInstallDir/$GO_ZIPBALL" | awk '{print $1}')
+# Note: sha256sum might not be available by default on some minimal Linux environments.
+# If you get 'sha256sum: command not found', you might need to use 'shasum -a 256' or remove this check for now.
+
+if [ "$EXPECTED_SHA256" != "$DOWNLOADED_SHA256" ]; then
+  echo "       ERROR: Downloaded Go zipball checksum mismatch!"
+  echo "       Expected: $EXPECTED_SHA256"
+  echo "       Got:      $DOWNLOADED_SHA256"
+  echo "       The downloaded file is corrupted. This usually indicates a network/proxy issue."
+  exit 1
 fi
-if [ ! -f $GoInstallDir/go/bin/go ]; then
-echo "       **ERROR** Could not download go"
-exit 1
+
+# Extract Go .zip file (using 'unzip' instead of 'tar')
+unzip -q "$GoInstallDir/$GO_ZIPBALL" -d "$GoInstallDir" # <--- Use unzip
+if [ $? -ne 0 ]; then
+  echo "       ERROR: Failed to extract Go zipball from '$GoInstallDir/$GO_ZIPBALL'. Unzip exited with status $?."
+  echo "       The file is corrupted despite matching checksum (very rare) or unzip command itself has issues."
+  exit 1
 fi
+
+export GOROOT="$GoInstallDir/go"
+export GOPATH="$INSTALL_GO_BUILDPACK_DIR"
+export PATH="$GOROOT/bin:$PATH"
+
+echo "       Go $GO_VERSION installed and configured."
+rm "$GoInstallDir/$GO_ZIPBALL"

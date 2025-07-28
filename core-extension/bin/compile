@@ -1,19 +1,28 @@
 #!/usr/bin/env bash
-# This script is a deprecated but is provided for compatibility with Heroku and older versions of Cloud Foundry
-# It is an alternative to bin/supply and bin/finalize
+# Compile script for New Relic Dotnet Extension Buildpack
 
-set -euo pipefail
+set -euxo pipefail
 
 BUILD_DIR=$1
 CACHE_DIR=$2
-BUILDPACK_PATH=$(dirname $(readlink -f ${BASH_SOURCE%/*}))
-DEPS_DIR="$BUILD_DIR/.cloudfoundry"
+DEPS_DIR=$3
+DEPS_IDX=$4
 
-mkdir -p $CACHE_DIR
-mkdir -p "$DEPS_DIR/0"
-mkdir -p "$BUILD_DIR/.profile.d"
+export BUILDPACK_DIR=`dirname $(readlink -f ${BASH_SOURCE%/*})`
+source "$BUILDPACK_DIR/scripts/install_go.sh" "$BUILDPACK_DIR"
 
-echo "export DEPS_DIR=\$HOME/.cloudfoundry" > "$BUILD_DIR/.profile.d/0000_set-deps-dir.sh"
+# Calculate the path to the Go module's root relative to the buildpack's unpacked root.
+GO_MODULE_SOURCE_ROOT=$(readlink -f "$BUILDPACK_DIR/../src/newrelic-dotnetcore-extension")
 
-$BUILDPACK_PATH/bin/supply "$BUILD_DIR" "$CACHE_DIR" "$DEPS_DIR" 0
-$BUILDPACK_PATH/bin/finalize "$BUILD_DIR" "$CACHE_DIR" "$DEPS_DIR" 0
+echo "-----> Running go build compile"
+
+# Change directory to the Go module's root before building
+(
+  cd "$GO_MODULE_SOURCE_ROOT" || exit 1
+  
+  # Execute go build from within the module root
+  "$GoInstallDir/go/bin/go" build -mod=vendor -ldflags="-s -w" -o /tmp/compile-binary ./compile/cli 2>&1
+)
+
+# Execute the newly compiled Go compile binary, passing original args
+/tmp/supply-binary "$BUILD_DIR" "$CACHE_DIR" "$DEPS_DIR" "$DEPS_IDX" "$BUILDPACK_UNPACKED_ROOT"

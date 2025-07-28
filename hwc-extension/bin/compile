@@ -1,19 +1,34 @@
 #!/usr/bin/env bash
-# This script is a deprecated but is provided for compatibility with Heroku and older versions of Cloud Foundry
-# It is an alternative to bin/supply and bin/finalize
+# Compile script for New Relic HWC Extension Buildpack
 
-set -euo pipefail
+set -euxo pipefail
 
 BUILD_DIR=$1
 CACHE_DIR=$2
-BUILDPACK_PATH=$(dirname $(readlink -f ${BASH_SOURCE%/*}))
-DEPS_DIR="$BUILD_DIR/.cloudfoundry"
+DEPS_DIR=$3
+DEPS_IDX=$4
 
-mkdir -p $CACHE_DIR
-mkdir -p "$DEPS_DIR/0"
-mkdir -p "$BUILD_DIR/.profile.d"
+# Get the absolute path to the directory containing this script (bin/)
+CURRENT_BIN_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
-echo "export DEPS_DIR=\$HOME/.cloudfoundry" > "$BUILD_DIR/.profile.d/0000_set-deps-dir.sh"
+# Calculate the path to the BUILD PACK'S UNPACKED ROOT directory.
+BUILDPACK_UNPACKED_ROOT=$(dirname "$CURRENT_BIN_DIR")
 
-$BUILDPACK_PATH/bin/supply "$BUILD_DIR" "$CACHE_DIR" "$DEPS_DIR" 0
-$BUILDPACK_PATH/bin/finalize "$BUILD_DIR" "$CACHE_DIR" "$DEPS_DIR" 0
+source "$BUILDPACK_UNPACKED_ROOT/scripts/install_go.sh" "$BUILDPACK_UNPACKED_ROOT"
+
+# Define the relative path to the actual Go project root within this unpacked buildpack.
+GO_PROJECT_SUBPATH="src/newrelic-hwc-extension" # <--- hwc-extension
+
+echo "-----> Running go build compile (verbose output below)"
+ls -ld "$BUILDPACK_UNPACKED_ROOT/$GO_PROJECT_SUBPATH"
+
+# Change directory to the Go module's root before building
+(
+  set -x
+  cd "$BUILDPACK_UNPACKED_ROOT/$GO_PROJECT_SUBPATH" || { echo "ERROR: Failed to cd into Go module source root. Path was: $BUILDPACK_UNPACKED_ROOT/$GO_PROJECT_SUBPATH"; exit 1; }
+  
+  "$GoInstallDir/go/bin/go" build -mod=vendor -ldflags="-s -w" -o /tmp/compile-binary.exe ./compile/cli 2>&1 # <--- .exe
+)
+
+# Execute the newly compiled Go binary, passing original args
+/tmp/compile-binary.exe "$BUILD_DIR" "$CACHE_DIR" "$DEPS_DIR" "$DEPS_IDX"

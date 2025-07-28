@@ -1,0 +1,24 @@
+---
+language: newrelic-dotnetcore-extension
+default_versions: [] # Assuming your Go code handles dynamic agent download and doesn't explicitly provide runtimes here
+dependency_deprecation_dates: [] # Or list any relevant dates if needed by the original project
+dependencies:
+  # This section declares the New Relic agent as a dependency the buildpack provides.
+  # The actual download/injection is handled by your Go 'supply' code, but this declares it to CF.
+  - name: newrelic
+    version: latest
+    cf_stacks:
+      - cflinuxfs3
+      - cflinuxfs4
+
+include_files:
+  - README.md
+  - VERSION
+  - bin/detect
+  - bin/compile
+  - bin/supply
+  - bin/finalize
+  - bin/release
+  - manifest.yml   # This buildpack's own manifest.yml
+  - newrelic.config # The agent's config file
+pre_package: scripts/build.sh # This script would be your local packaging script

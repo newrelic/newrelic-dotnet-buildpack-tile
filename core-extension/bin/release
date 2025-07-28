@@ -1,5 +1,29 @@
 #!/usr/bin/env bash
-# bin/release <build-dir>
-# This script provides feedback metadata to Cloud Foundry indicating how the app should be executed
+# Release script for New Relic Dotnet Extension Buildpack
 
-echo -e "---\ndefault_process_types:\n  web: '>&2 echo Please specify a default start command for this buildpack && exit 1'"
+set -euxo pipefail
+
+BUILD_DIR=$1
+CACHE_DIR=$2
+DEPS_DIR=$3
+DEPS_IDX=$4
+PROFILE_DIR=${5:-} # Release also gets PROFILE_DIR
+
+export BUILDPACK_DIR=`dirname $(readlink -f ${BASH_SOURCE%/*})`
+source "$BUILDPACK_DIR/scripts/install_go.sh" "$BUILDPACK_DIR"
+
+# Calculate the path to the Go module's root relative to the buildpack's unpacked root.
+GO_MODULE_SOURCE_ROOT=$(readlink -f "$BUILDPACK_DIR/../src/newrelic-dotnetcore-extension")
+
+echo "-----> Running go build release"
+
+# Change directory to the Go module's root before building
+(
+  cd "$GO_MODULE_SOURCE_ROOT" || exit 1
+  
+  # Execute go build from within the module root
+  "$GoInstallDir/go/bin/go" build -mod=vendor -ldflags="-s -w" -o /tmp/release-binary ./release/cli 2>&1
+)
+
+# Execute the newly compiled Go release binary, passing original args
+/tmp/supply-binary "$BUILD_DIR" "$CACHE_DIR" "$DEPS_DIR" "$DEPS_IDX" "$BUILDPACK_UNPACKED_ROOT"

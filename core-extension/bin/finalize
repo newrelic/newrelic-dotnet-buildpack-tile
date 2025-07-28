@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # This script prepares and configures the app for launch.
 
-set -euo pipefail
+set -euxo pipefail
 
 BUILD_DIR=$1
 CACHE_DIR=$2
@@ -10,10 +10,20 @@ DEPS_IDX=$4
 PROFILE_DIR=${5:-}
 
 export BUILDPACK_DIR=`dirname $(readlink -f ${BASH_SOURCE%/*})`
-source "$BUILDPACK_DIR/scripts/install_go.sh"
-output_dir=$(mktemp -d -t finalizeXXX)
+source "$BUILDPACK_DIR/scripts/install_go.sh" "$BUILDPACK_DIR"
+
+# Calculate the path to the Go module's root relative to the buildpack's unpacked root.
+GO_MODULE_SOURCE_ROOT=$(readlink -f "$BUILDPACK_DIR/../src/newrelic-dotnetcore-extension")
 
 echo "-----> Running go build finalize"
-GOROOT=$GoInstallDir/go GOPATH=$BUILDPACK_DIR $GoInstallDir/go/bin/go build -o $output_dir/finalize newrelic-dotnetcore-extension/finalize/cli
 
-$output_dir/finalize "$BUILD_DIR" "$CACHE_DIR" "$DEPS_DIR" "$DEPS_IDX" "$PROFILE_DIR"
+# Change directory to the Go module's root before building
+(
+  cd "$GO_MODULE_SOURCE_ROOT" || exit 1
+  
+  # Execute go build from within the module root
+  "$GoInstallDir/go/bin/go" build -mod=vendor -ldflags="-s -w" -o /tmp/finalize-binary ./finalize/cli 2>&1
+)
+
+# Execute the newly compiled Go finalize binary, passing original args
+/tmp/supply-binary "$BUILD_DIR" "$CACHE_DIR" "$DEPS_DIR" "$DEPS_IDX" "$BUILDPACK_UNPACKED_ROOT"
