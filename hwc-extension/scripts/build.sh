@@ -26,13 +26,16 @@ cp -r src "$BUILD_DIR/"
 # 3. Copy the 'scripts/' directory (containing install_go.sh)
 cp -r scripts "$BUILD_DIR/"
 
-# 4. Copy the buildpack's own manifest.yml (from BUILD_BP_ROOT)
+# 4. Copy the 'dependencies/' directory containing the packaged Go toolchain
+cp -r dependencies "$BUILD_DIR/"
+
+# 5. Copy the buildpack's own manifest.yml (from BUILD_BP_ROOT)
 cp manifest.yml "$BUILD_DIR/"
 
-# 5. Copy newrelic.config (from BUILD_BP_ROOT)
+# 6. Copy newrelic.config (from BUILD_BP_ROOT)
 cp newrelic.config "$BUILD_DIR/"
 
-# 6. Copy other essential root-level files (from BUILD_BP_ROOT, if they exist)
+# 7. Copy other essential root-level files (from BUILD_BP_ROOT, if they exist)
 cp README.md "$BUILD_DIR/"
 cp VERSION "$BUILD_DIR/"
 # Add any other files like Procfile, pkg (if needed for packaging)
@@ -40,10 +43,10 @@ cp VERSION "$BUILD_DIR/"
 cp Procfile "$BUILD_DIR/" 
 cp -r pkg "$BUILD_DIR/"   
 
-# 7. Zip the contents of the temporary directory
+# 8. Zip the contents of the temporary directory
 cd "$BUILD_DIR"
 zip -r "$HOME/newrelic-hwc-extension.zip" ./*
 
-# 8. Clean up
+# 9. Clean up
 rm -rf "$BUILD_DIR"
 echo "-----> Buildpack .zip created at $HOME/newrelic-hwc-extension.zip"
