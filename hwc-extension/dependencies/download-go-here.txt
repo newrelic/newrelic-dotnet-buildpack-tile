@@ -1,2 +1,0 @@
-https://go.dev/dl/go1.23.0.windows-amd64.zip
-d4be481ef73079ee0ad46081d278923aa3fd78db1b3cf147172592f73e14c1ac

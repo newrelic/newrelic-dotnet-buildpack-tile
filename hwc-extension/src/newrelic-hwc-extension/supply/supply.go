@@ -2,8 +2,6 @@ package supply
 
 import (
 	"encoding/xml"
-	"os/exec"
-
 	// "crypto/md5"
 	"fmt"
 	"io"
@@ -337,31 +335,16 @@ func (s *Supplier) Run() error {
 		return err
 	}
 
-	/* DELETE OR COMMENT OUT THIS BLOCK */
-	//if updateAgentPath {
-	s.Log.Info("Restructuring agent files for modern agent.")
-	err1 := copyFiles(s, filepath.Join(nrAgentPath, "netframework"), nrAgentPath)
-	if err1 != nil {
-		s.Log.Error("Error restructuring Agent files", err)
+	if updateAgentPath {
+
+		err := copyFiles(s, filepath.Join(nrAgentPath, "netframework"), nrAgentPath)
+		if err != nil {
+			s.Log.Error("Error restructuring Agent files", err)
+		}
 	}
-	//}
-	// START: Remove 32-bit gRPC library to prevent architecture conflicts.
-	s.Log.Info("Removing 32-bit gRPC library (grpc_csharp_ext.x86.dll).")
-	fileToRemove := filepath.Join(nrAgentPath, "grpc_csharp_ext.x86.dll")
-	if err := os.Remove(fileToRemove); err != nil {
-		s.Log.Warning("Could not remove grpc_csharp_ext.x86.dll, it may not have been present: %v", err)
-	}
-	// END: Remove 32-bit gRPC library.
 
 	// End: extracting AgentFile #################################################################################
-	// START DIAGNOSTIC: Rename newrelic.config to isolate it
-	//s.Log.Info("DIAGNOSTIC: Renaming newrelic.config to newrelic.config.bak")
-	//originalConfigPath := filepath.Join(nrAgentPath, "newrelic.config")
-	//backupConfigPath := filepath.Join(nrAgentPath, "newrelic.config.bak")
-	//if err := os.Rename(originalConfigPath, backupConfigPath); err != nil {
-	//	s.Log.Warning("Could not rename newrelic.config: %v", err)
-	//}
-	// END DIAGNOSTIC
+
 	// decide which newrelic.config file to use (appdir, buildpackdir, agentdir)
 	if err := getNewRelicConfigFile(s, nrAgentPath, buildpackDir); err != nil {
 		return err
@@ -387,18 +370,7 @@ func (s *Supplier) Run() error {
 		return err
 	}
 
-	// Grant permissions to the newrelic directory to allow the profiler to be loaded.
-	s.Log.Info("Setting permissions on New Relic agent directory")
-	cmd := exec.Command("icacls", filepath.Join(s.Stager.BuildDir(), "newrelic"), "/grant", "Users:(OI)(CI)F", "/t")
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		s.Log.Error("Failed to set permissions: %s", string(output))
-		return err
-	}
-	// s.Log.Info(string(output))
-
 	s.Log.Info("Installing New Relic Agent Completed.")
-
 	return nil
 }
 
@@ -769,12 +741,8 @@ func buildProfileD(s *Supplier, nrAgentPath string) error {
 		return s.Stager.WriteProfileD("newrelic.bat", scriptContent)
 	} else {
 		// scriptContentBuffer.WriteString("set | sort > env2\n")
-		// Add these two lines for diagnostics
-		scriptContentBuffer.WriteString("echo DIAGNOSTIC: Setting permissions on newrelic directory\n")
-		scriptContentBuffer.WriteString("icacls %~dp0newrelic /grant Users:(OI)(CI)F /t\n")
-		// scriptContentBuffer.WriteString("echo DIAGNOSTIC: Listing contents of newrelic directory\n")
-		// scriptContentBuffer.WriteString("dir %~dp0newrelic\n")
 		scriptContentBuffer.WriteString("\n.cloudfoundry\\hwc.exe\n\n")
+
 		scriptContent := scriptContentBuffer.String()
 		err := writeToFile(strings.NewReader(scriptContent), runCmdFileDest, 0755)
 		if err != nil {
@@ -791,15 +759,13 @@ func setNewRelicProfilerProperties(s *Supplier, nrAgentPath string) bytes.Buffer
 	s.Log.Debug("Setting New Relic profiler properties")
 	var profilerSettingsBuffer bytes.Buffer
 
+	// profilerSettingsBuffer.WriteString(strings.Join([]string{"set COR_NEWRELIC_HOME=", nrAgentPath}, ""))
+	// profilerSettingsBuffer.WriteString("\n")
+
 	profilerSettingsBuffer.WriteString(strings.Join([]string{"set NEWRELIC_HOME=", nrAgentPath}, ""))
 	profilerSettingsBuffer.WriteString("\n")
-
-	// START MODIFICATION
-	// Always use the path for modern agents, which includes the 'netframework' subdirectory.
-	profilerDllPath := filepath.Join(nrAgentPath, newrelicProfilerSharedLib)
-	profilerSettingsBuffer.WriteString(strings.Join([]string{"set COR_PROFILER_PATH=", profilerDllPath}, ""))
+	profilerSettingsBuffer.WriteString(strings.Join([]string{"set COR_PROFILER_PATH=", filepath.Join(nrAgentPath, newrelicProfilerSharedLib)}, ""))
 	profilerSettingsBuffer.WriteString("\n")
-	// END MODIFICATION
 
 	profilerSettingsBuffer.WriteString("set COR_ENABLE_PROFILING=1")
 	profilerSettingsBuffer.WriteString("\n")
