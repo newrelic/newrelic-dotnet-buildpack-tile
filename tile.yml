@@ -1,7 +1,7 @@
 ---
 name: new-relic-dotnet-buildpack
 version: 1.1.14
-metadata_version: 2.0
+metadata_version: 3.0
 label: New Relic Dotnet Buildpack for Tanzu
 description: New Relic Dotnet Buildpack for Tanzu
 icon_file: resources/images/NR_logo.png
