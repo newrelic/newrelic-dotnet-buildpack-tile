@@ -5,6 +5,13 @@ set -euo pipefail
 BUILD_BP_ROOT="$( dirname "${BASH_SOURCE[0]}" )/.."
 cd "$BUILD_BP_ROOT"
 
+# --- FIX: Define absolute path for the output zip file ---
+# The project root is one level up from our current directory.
+PROJECT_ROOT="$(pwd)/.."
+OUTPUT_ZIP_NAME="newrelic-hwc-extension.zip"
+OUTPUT_ZIP_PATH="${PROJECT_ROOT}/${OUTPUT_ZIP_NAME}"
+# --- END FIX ---
+
 echo "-----> Running local Go unit tests (optional but recommended)..."
 # Assuming your Go project root is src/newrelic-hwc-extension
 # (Adjust this path if your Go project is directly under hwc-extension, i.e., no 'src' folder)
@@ -45,8 +52,10 @@ cp -r pkg "$BUILD_DIR/"
 
 # 8. Zip the contents of the temporary directory
 cd "$BUILD_DIR"
-zip -r "$HOME/newrelic-hwc-extension.zip" ./*
+# --- FIX: Use the absolute path variable for the zip output ---
+zip -r "${OUTPUT_ZIP_PATH}" ./*
 
 # 9. Clean up
 rm -rf "$BUILD_DIR"
-echo "-----> Buildpack .zip created at $HOME/newrelic-hwc-extension.zip"
+# --- FIX: Use the absolute path variable in the log message ---
+echo "-----> Buildpack .zip created at ${OUTPUT_ZIP_PATH}"
