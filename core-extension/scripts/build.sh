@@ -5,6 +5,13 @@ set -euo pipefail
 BUILD_BP_ROOT="$( dirname "${BASH_SOURCE[0]}" )/.."
 cd "$BUILD_BP_ROOT"
 
+# --- FIX: Define absolute path for the output zip file ---
+# The project root is one level up from our current directory.
+PROJECT_ROOT="$(pwd)/.."
+OUTPUT_ZIP_NAME="newrelic-dotnetcore-extension.zip"
+OUTPUT_ZIP_PATH="${PROJECT_ROOT}/${OUTPUT_ZIP_NAME}"
+# --- END FIX ---
+
 # Define the Go command to use (it's your default 'go' which is 1.19.13)
 GO_COMMAND="go" 
 
@@ -52,10 +59,13 @@ cp newrelic.config "$BUILD_DIR/"
 cp README.md "$BUILD_DIR/"
 cp VERSION "$BUILD_DIR/"
 
-# 7. Zip the contents of the temporary directory
-cd "$BUILD_DIR"
-zip -r "$HOME/newrelic-dotnet-extension.zip" ./*
 
-# 8. Clean up
+# 8. Zip the contents of the temporary directory
+cd "$BUILD_DIR"
+# --- FIX: Use the absolute path variable for the zip output ---
+zip -r "${OUTPUT_ZIP_PATH}" ./*
+
+# 9. Clean up
 rm -rf "$BUILD_DIR"
-echo "-----> Buildpack .zip created at $HOME/newrelic-dotnet-extension.zip"
+# --- FIX: Use the absolute path variable in the log message ---
+echo "-----> Buildpack .zip created at ${OUTPUT_ZIP_PATH}"
