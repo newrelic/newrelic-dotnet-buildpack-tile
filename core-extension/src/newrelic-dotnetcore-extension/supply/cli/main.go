@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	_ "newrelic-dotnetcore-extension/hooks"
 	"newrelic-dotnetcore-extension/supply"
 	"os"
@@ -11,6 +12,11 @@ import (
 )
 
 func main() {
+
+	buildpackRoot := os.Args[5] // <--- NEW ARGUMENT for supply
+	// Log the received buildpackRoot for debugging
+	fmt.Printf("DEBUG: Go supply binary received buildpackRoot: %s\n", buildpackRoot)
+
 	logger := libbuildpack.NewLogger(os.Stdout)
 
 	buildpackDir, err := libbuildpack.GetBuildpackDir()
@@ -18,8 +24,10 @@ func main() {
 		logger.Error("Unable to determine buildpack directory: %s", err.Error())
 		os.Exit(9)
 	}
+	// Log the received buildpackRoot for debugging
+	fmt.Printf("DEBUG: Go supply binary received buildpackDir: %s\n", buildpackDir)
 
-	manifest, err := libbuildpack.NewManifest(buildpackDir, logger, time.Now())
+	manifest, err := libbuildpack.NewManifest(buildpackRoot, logger, time.Now())
 	if err != nil {
 		logger.Error("Unable to load buildpack manifest: %s", err.Error())
 		os.Exit(10)
@@ -61,11 +69,11 @@ func main() {
 	}
 
 	s := supply.Supplier{
-		Manifest: manifest,
+		Manifest:  manifest,
 		Installer: installer,
-		Stager:   stager,
-		Command:  &libbuildpack.Command{},
-		Log:      logger,
+		Stager:    stager,
+		Command:   &libbuildpack.Command{},
+		Log:       logger,
 	}
 
 	err = s.Run()

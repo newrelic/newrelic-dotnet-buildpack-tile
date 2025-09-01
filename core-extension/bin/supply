@@ -1,17 +1,54 @@
-#!/bin/bash
-# This script provides dependencies for an app
+#!/usr/bin/env bash
+# Supply script for New Relic Dotnet Extension Buildpack phase
 
-
-set -euo pipefail
+set -euxo pipefail # Keep 'x' for extreme verbosity
 
 BUILD_DIR=$1
 CACHE_DIR=$2
 DEPS_DIR=$3
 DEPS_IDX=$4
+# PROFILE_DIR=${5:-} # Only for finalize/release
 
-export BUILDPACK_DIR=`dirname $(readlink -f ${BASH_SOURCE%/*})`
-source "$BUILDPACK_DIR/scripts/install_go.sh"
-output_dir=$(mktemp -d -t supplyXXX)
-echo "-----> Running go build supply"
-GOROOT=$GoInstallDir/go GOPATH=$BUILDPACK_DIR $GoInstallDir/go/bin/go build -o $output_dir/supply newrelic-dotnetcore-extension/supply/cli
-$output_dir/supply "$BUILD_DIR" "$CACHE_DIR" "$DEPS_DIR" "$DEPS_IDX"
+# Get the absolute path to the directory containing this script (bin/)
+CURRENT_BIN_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+
+# Calculate the path to the BUILD PACK'S UNPACKED ROOT directory.
+BUILDPACK_UNPACKED_ROOT=$(dirname "$CURRENT_BIN_DIR")
+
+source "$BUILDPACK_UNPACKED_ROOT/scripts/install_go.sh" "$BUILDPACK_UNPACKED_ROOT"
+
+# Define the relative path to the actual Go project root within this unpacked buildpack.
+GO_PROJECT_SUBPATH="src/newrelic-dotnetcore-extension"
+
+
+echo "-----> Running go build supply (verbose output below)"
+echo "       Current shell script location: $(pwd)"
+echo "       Calculated CURRENT_BIN_DIR: $CURRENT_BIN_DIR"
+echo "       Calculated BUILDPACK_UNPACKED_ROOT: $BUILDPACK_UNPACKED_ROOT"
+echo "       Go Project Subpath (relative to unpacked root): $GO_PROJECT_SUBPATH"
+echo "       Full path to Go module source: $BUILDPACK_UNPACKED_ROOT/$GO_PROJECT_SUBPATH"
+echo "       Checking existence of full Go module source path:"
+ls -ld "$BUILDPACK_UNPACKED_ROOT/$GO_PROJECT_SUBPATH"
+
+# Change directory to the Go module's root before building
+(
+  set -x # Enable 'x' for this subshell too
+  
+  echo "       Current directory before cd: $(pwd)"
+  echo "       Attempting to cd to: $BUILDPACK_UNPACKED_ROOT/$GO_PROJECT_SUBPATH"
+  
+  cd "$BUILDPACK_UNPACKED_ROOT/$GO_PROJECT_SUBPATH" || { echo "ERROR: Failed to cd into Go module source root. Path was: $BUILDPACK_UNPACKED_ROOT/$GO_PROJECT_SUBPATH"; exit 1; }
+  
+  echo "       Current directory AFTER cd: $(pwd)"
+  echo "       Contents of current directory (ls -F):"
+  ls -F # List contents to verify go.mod, supply/cli etc.
+  echo "       Content of go.mod:"
+  cat go.mod || echo "       go.mod not found or unreadable in current directory!"
+
+  # Now, execute go build from within the module root
+  # Use the SPECIFIC SUBPACKAGE PATH relative to the module root.
+  "$GoInstallDir/go/bin/go" build -mod=vendor -ldflags="-s -w" -o /tmp/supply-binary ./supply/cli 2>&1 # <--- CORRECTED: Back to ./supply/cli
+)
+
+# Execute the newly compiled Go binary, passing original args
+/tmp/supply-binary "$BUILD_DIR" "$CACHE_DIR" "$DEPS_DIR" "$DEPS_IDX" "$BUILDPACK_UNPACKED_ROOT"
