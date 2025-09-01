@@ -54,7 +54,7 @@ The following table provides version and version-support information about New R
     </tr>
     <tr>
         <td>Release date</td>
-        <td>Sep 08, 2026</td>
+        <td>Sep 08, 2025</td>
     </tr>
     <tr>
         <td>Software component version</td>
