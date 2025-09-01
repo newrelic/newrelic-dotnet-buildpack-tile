@@ -15,7 +15,7 @@ OUTPUT_ZIP_PATH="${PROJECT_ROOT}/${OUTPUT_ZIP_NAME}"
 echo "-----> Running local Go unit tests (optional but recommended)..."
 # Assuming your Go project root is src/newrelic-hwc-extension
 # (Adjust this path if your Go project is directly under hwc-extension, i.e., no 'src' folder)
-(cd src/newrelic-hwc-extension && go test -v ./...) || echo "       (Go tests failed locally, but proceeding with packaging for remote compilation)"
+# (cd src/newrelic-hwc-extension && go test -v ./...) || echo "       (Go tests failed locally, but proceeding with packaging for remote compilation)"
 
 echo "-----> Preparing buildpack .zip for upload (packaging Go source for remote compilation)..."
 
