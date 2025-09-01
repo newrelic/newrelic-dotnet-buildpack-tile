@@ -14,15 +14,15 @@ require (
 	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/cloudfoundry/packit v0.0.0-20191127173036-0f20fa6ae373 // indirect
-	github.com/elazarl/goproxy v0.0.0-20190911111923-ecfe977594f1 // indirect
+	github.com/elazarl/goproxy v1.2.1 // indirect
 	github.com/hpcloud/tail v1.0.0 // indirect
 	github.com/pkg/errors v0.8.1 // indirect
 	github.com/tidwall/gjson v1.3.5 // indirect
 	github.com/tidwall/match v1.0.1 // indirect
 	github.com/tidwall/pretty v1.0.0 // indirect
-	golang.org/x/net v0.0.0-20191126235420-ef20fe5d7933 // indirect
-	golang.org/x/sys v0.0.0-20191127021746-63cb32ae39b2 // indirect
-	golang.org/x/text v0.3.2 // indirect
+	golang.org/x/net v0.33.0 // indirect
+	golang.org/x/sys v0.28.0 // indirect
+	golang.org/x/text v0.21.0 // indirect
 	golang.org/x/xerrors v0.0.0-20191011141410-1b5146add898 // indirect
 	gopkg.in/fsnotify.v1 v1.4.7 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
