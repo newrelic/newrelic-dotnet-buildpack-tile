@@ -1,9 +1,11 @@
 module golang.org/x/net
 
-go 1.11
+go 1.24.0
 
 require (
-	golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2
-	golang.org/x/sys v0.0.0-20190215142949-d0b11bdaac8a
-	golang.org/x/text v0.3.0
+	golang.org/x/crypto v0.45.0
+	golang.org/x/sys v0.38.0
+	golang.org/x/text v0.31.0
 )
+
+require golang.org/x/term v0.37.0 // indirect
