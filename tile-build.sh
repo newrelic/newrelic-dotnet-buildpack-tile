@@ -4,7 +4,7 @@
 set -euo pipefail
 
 # --- Configuration ---
-VERSION="1.2.4"
+VERSION="1.2.8"
 TILE_NAME="new-relic-dotnet-buildpack"
 
 # Define the final buildpack filenames as specified in tile.yml
