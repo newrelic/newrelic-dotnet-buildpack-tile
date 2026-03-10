@@ -7,9 +7,9 @@ dependencies:
   # The actual download/injection is handled by your Go 'supply' code, but this declares it to CF.
   - name: newrelic
     version: latest
-    # version: 10.43.0 # You can uncomment and fix specific version/SHA if you want to pin it
-    uri: https://download.newrelic.com/dot_net_agent/previous_releases/10.43.0/newrelic-dotnet-agent_10.43.0_amd64.tar.gz
-    sha256: 0d527ed576fae29b2ba5f57e638ec3d2ed6b74352cc154b59beedd76cbeaa883
+    # version: 10.49.0 # You can uncomment and fix specific version/SHA if you want to pin it
+    uri: https://download.newrelic.com/dot_net_agent/previous_releases/10.49.0/newrelic-dotnet-agent_10.49.0_amd64.tar.gz
+    sha256: FB189DC2416B93909A03A46439E74F6E18BAAE9C1C1D470EB5110A5137F5B511
     cf_stacks:
       - cflinuxfs3
       - cflinuxfs4

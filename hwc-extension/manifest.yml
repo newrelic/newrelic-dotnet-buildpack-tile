@@ -10,9 +10,9 @@ dependencies:
   cf_stacks:
   - windows
 - name: newrelic
-  version: 10.43.0
-  uri: https://download.newrelic.com/dot_net_agent/previous_releases/10.43.0/NewRelicDotNetAgent_10.43.0_x64.zip
-  sha256: A8F3DFE2ACF3BFC3454D131127018B43C9F61E6009C2D1E63F446B1B2AA7A171
+  version: 10.49.0
+  uri: https://download.newrelic.com/dot_net_agent/previous_releases/10.49.0/NewRelicDotNetAgent_10.49.0_x64.zip
+  sha256: F3F5E3290EBF60769C936B6E3C114621E2D7AC901D752E165B18807444B0D1EE
   cf_stacks:
   - windows
 
